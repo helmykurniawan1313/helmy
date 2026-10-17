@@ -1,4 +1,4 @@
-// Floating "Ask AI" chat. Talks to POST /assistant (Groq first, Gemini fallback on the server).
+// Floating "Ask AI" chat. Talks to POST /assistant (server tries Gemini, then Groq).
 
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 

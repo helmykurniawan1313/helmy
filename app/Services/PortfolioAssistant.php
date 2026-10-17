@@ -9,7 +9,7 @@ use Throwable;
 
 /**
  * Answers visitor questions using only the portfolio data.
- * Tries Groq first (fast), then falls back to Gemini.
+ * Tries providers in the order set by ASSISTANT_PROVIDERS (default: Gemini, then Groq).
  */
 class PortfolioAssistant
 {
@@ -22,7 +22,7 @@ class PortfolioAssistant
         $system = $this->systemPrompt($locale);
         $errors = [];
 
-        foreach (['groq', 'gemini'] as $provider) {
+        foreach ($this->providers() as $provider) {
             if (! config("services.{$provider}.key")) {
                 continue;
             }
@@ -43,6 +43,14 @@ class PortfolioAssistant
         Log::warning('Portfolio assistant failed', ['errors' => $errors]);
 
         throw new RuntimeException('No AI provider available.');
+    }
+
+    /** @return array<int, string> providers in the order to try them */
+    private function providers(): array
+    {
+        $order = array_map('trim', explode(',', (string) config('services.assistant.providers')));
+
+        return array_values(array_intersect($order, ['gemini', 'groq']));
     }
 
     private function askGroq(string $system, array $messages): string
