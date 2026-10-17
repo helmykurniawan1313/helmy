@@ -1,6 +1,6 @@
 @php
     $sections = ['about', 'services', 'experience', 'skills', 'projects', 'education', 'contact'];
-    $base = request()->routeIs('home', 'home.en') ? '' : route($locales[$locale]['route']);
+    $base = request()->routeIs('home', 'home.id') ? '' : route($locales[$locale]['route']);
 @endphp
 <header class="island-wrap">
     <nav class="island" aria-label="{{ $p['nav']['main'] }}">

@@ -15,7 +15,7 @@ return [
 
     // locale => [route name, label, og:locale]
     'locales' => [
-        'id' => ['route' => 'home', 'label' => 'ID', 'name' => 'Bahasa Indonesia', 'og' => 'id_ID'],
-        'en' => ['route' => 'home.en', 'label' => 'EN', 'name' => 'English', 'og' => 'en_US'],
+        'en' => ['route' => 'home', 'label' => 'EN', 'name' => 'English', 'og' => 'en_US'],
+        'id' => ['route' => 'home.id', 'label' => 'ID', 'name' => 'Bahasa Indonesia', 'og' => 'id_ID'],
     ],
 ];

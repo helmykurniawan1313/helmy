@@ -11,8 +11,11 @@ $home = function (string $locale) {
     ]);
 };
 
-Route::get('/', fn () => $home('id'))->name('home');
-Route::get('/en', fn () => $home('en'))->name('home.en');
+Route::get('/', fn () => $home('en'))->name('home');
+Route::get('/id', fn () => $home('id'))->name('home.id');
+
+// English used to live at /en; keep old links working
+Route::permanentRedirect('/en', '/');
 
 Route::post('/assistant', AssistantController::class)
     ->middleware('throttle:15,1')

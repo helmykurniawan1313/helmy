@@ -1,5 +1,5 @@
 @php
-    app()->setLocale(request()->is('en', 'en/*') ? 'en' : 'id');
+    app()->setLocale(request()->is('id', 'id/*') ? 'id' : 'en');
     $p = config('portfolio') + __('portfolio');
     $p['meta']['title'] = '404 · '.$p['ui']['not_found'].' | '.$p['name'];
 @endphp
