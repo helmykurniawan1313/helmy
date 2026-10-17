@@ -1,0 +1,1914 @@
+// ---------------------------------------------------------------
+// High-end pass (see .claude/skills/high-end-visual-design)
+// Vibe: Soft Structuralism · Layout: Asymmetrical Bento
+// ---------------------------------------------------------------
+
+:root {
+    --font-sans: "Geist Variable", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    --bs-body-font-family: var(--font-sans);
+    --display-font: var(--font-sans);
+
+    // One motion curve: heavy start, long soft settle
+    --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-press: cubic-bezier(0.32, 0.72, 0, 1);
+
+    // Systemic z-index scale
+    --z-nav: 100;
+    --z-overlay: 200;
+    --z-grain: 300;
+    --z-skip: 400;
+
+    // Soft Structuralism surfaces
+    --page: #f4f5f7;
+    --shell: rgba(17, 24, 39, 0.035);
+    --shell-ring: rgba(17, 24, 39, 0.06);
+    --core: #ffffff;
+    --core-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.9);
+    --ambient: 0 1px 2px rgba(30, 40, 90, 0.04), 0 24px 60px -28px rgba(30, 40, 90, 0.16);
+    --bezel: 6px;
+    --r-shell: 2rem;
+    --r-core: calc(var(--r-shell) - var(--bezel));
+}
+
+[data-bs-theme="dark"] {
+    --page: #08090c;
+    --shell: rgba(255, 255, 255, 0.04);
+    --shell-ring: rgba(255, 255, 255, 0.08);
+    --core: #111319;
+    --core-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    --ambient: 0 24px 60px -28px rgba(0, 0, 0, 0.6);
+}
+
+body.portfolio {
+    background: var(--page);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+}
+
+h1, h2, h3, h4, h5, h6, .display-xl, .display-lg, .tile-big, .island-brand { font-family: var(--font-sans); }
+
+.display-xl { font-weight: 600; letter-spacing: -0.045em; }
+.display-lg { font-weight: 600; letter-spacing: -0.035em; }
+
+// Ultra-light icons need a touch more size to hold their own
+.ph-light { font-size: 1.15em; vertical-align: -0.15em; }
+
+body.portfolio::after { z-index: var(--z-grain); }
+.skip-link { z-index: var(--z-skip); }
+
+// ---------- Fluid Island nav ----------
+
+.island-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-nav);
+    display: flex;
+    justify-content: center;
+    padding: 1.25rem 1rem 0;
+    pointer-events: none;
+}
+
+.island {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: max-content;
+    max-width: 100%;
+    padding: 0.4rem 0.4rem 0.4rem 1.25rem;
+    border-radius: 999px;
+    background: rgba(var(--bs-body-bg-rgb), 0.7);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: 0 0 0 1px var(--shell-ring), var(--ambient), var(--core-highlight);
+    transition: transform 0.7s var(--ease-out), box-shadow 0.7s var(--ease-out);
+
+    &.scrolled { transform: translateY(-4px) scale(0.985); }
+}
+
+.island-brand {
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-size: 1.05rem;
+    color: var(--bs-body-color);
+    text-decoration: none;
+    margin-right: 0.75rem;
+
+    span { color: var(--accent); }
+}
+
+.island-links {
+    display: flex;
+    gap: 0.15rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .nav-link {
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: rgba(var(--bs-body-color-rgb), 0.7);
+        transition: color 0.4s var(--ease-out), background-color 0.4s var(--ease-out);
+
+        &:hover { color: var(--bs-body-color); }
+
+        &.active {
+            color: var(--bs-body-color);
+            background: var(--shell);
+        }
+    }
+}
+
+.island-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: 0.5rem;
+}
+
+.island .lang-toggle { border-color: var(--shell-ring); }
+.island .theme-toggle { border: 0; background: var(--shell); width: 36px; height: 36px; }
+
+// Burger → X morph
+.burger {
+    display: none;
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bs-body-color);
+    -webkit-tap-highlight-color: transparent;
+
+    span {
+        position: absolute;
+        left: 11px;
+        right: 11px;
+        height: 1.5px;
+        border-radius: 2px;
+        background: var(--bs-body-bg);
+        transition: transform 0.6s var(--ease-out);
+
+        &:nth-child(1) { transform: translateY(-3.5px); }
+        &:nth-child(2) { transform: translateY(3.5px); }
+    }
+
+    &[aria-expanded="true"] span {
+        &:nth-child(1) { transform: rotate(45deg); }
+        &:nth-child(2) { transform: rotate(-45deg); }
+    }
+}
+
+// Full-screen glass menu with staggered mask reveal
+.menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-nav) - 1);
+    display: flex;
+    align-items: center;
+    padding: 6rem 1.5rem 3rem;
+    background: rgba(var(--bs-body-bg-rgb), 0.82);
+    backdrop-filter: blur(40px) saturate(160%);
+    -webkit-backdrop-filter: blur(40px) saturate(160%);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out);
+
+    &.open { opacity: 1; }
+}
+
+.menu-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+
+    li { overflow: hidden; }
+
+    a {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        padding: 0.35rem 0;
+        font-size: clamp(2rem, 9vw, 3rem);
+        font-weight: 600;
+        letter-spacing: -0.04em;
+        color: var(--bs-body-color);
+        text-decoration: none;
+        transform: translateY(110%);
+        opacity: 0;
+        transition: transform 0.8s var(--ease-out), opacity 0.8s var(--ease-out);
+        transition-delay: calc(0.06s * var(--i) + 0.1s);
+    }
+
+    .menu-index {
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        color: var(--bs-secondary-color);
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.menu-overlay.open .menu-links a {
+    transform: none;
+    opacity: 1;
+}
+
+html.menu-open { overflow: hidden; }
+
+// ---------- Double-Bezel architecture ----------
+// The element itself is the outer shell; ::before paints the inner core.
+
+.tile,
+.svc-card {
+    background: var(--shell);
+    border: 0;
+    border-radius: var(--r-shell);
+    box-shadow: 0 0 0 1px var(--shell-ring), var(--ambient);
+    padding: calc(1.5rem + var(--bezel));
+    isolation: isolate;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: var(--bezel);
+        border-radius: var(--r-core);
+        background: var(--core);
+        box-shadow: var(--core-highlight);
+        z-index: -1;
+        transition: background-color 0.5s var(--ease-out);
+    }
+}
+
+.tile.t-soft::before { background: color-mix(in srgb, var(--core) 92%, var(--accent)); }
+
+.tile.t-accent {
+    background: var(--shell);
+    box-shadow: 0 0 0 1px var(--shell-ring), 0 24px 60px -28px rgba(var(--accent-rgb), 0.55);
+
+    &::before {
+        background:
+            radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.2), transparent 55%),
+            var(--accent);
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    }
+}
+
+// Dark banner service cards: dark-glass bezel
+.svc-card {
+    --core: #151826;
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+    &::before { box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08); }
+    &:hover { border-color: transparent; }
+}
+
+.proj-card {
+    padding: var(--bezel);
+    border: 0;
+    border-radius: var(--r-shell);
+    background: var(--shell);
+    box-shadow: 0 0 0 1px var(--shell-ring), var(--ambient);
+
+    .proj-visual { border-radius: var(--r-core) var(--r-core) 0.5rem 0.5rem; }
+
+    .proj-body {
+        background: var(--core);
+        border-radius: 0.5rem 0.5rem var(--r-core) var(--r-core);
+        margin-top: 2px;
+        box-shadow: var(--core-highlight);
+    }
+}
+
+// Inner elements use the next radius down for concentric curves
+.svc .icon-box, .svc-card .svc-ic, .proj-icon { border-radius: 0.875rem; }
+
+@media (hover: hover) and (pointer: fine) {
+    .tile:hover, .proj-card:hover {
+        box-shadow: 0 0 0 1px var(--shell-ring), 0 2px 4px rgba(30, 40, 90, 0.04), 0 32px 70px -30px rgba(30, 40, 90, 0.24);
+    }
+}
+
+// ---------- Island buttons (button-in-button) ----------
+
+.island-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.4rem 0.4rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 0.975rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.5s var(--ease-out), background-color 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out);
+
+    &:active { transform: scale(0.98); transition-duration: 0.12s; }
+
+    .island-btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 50%;
+        transition: transform 0.5s var(--ease-out);
+
+        .ph-light { font-size: 1rem; vertical-align: 0; }
+    }
+
+    &:hover .island-btn-icon { transform: translate(3px, -1px) scale(1.05); }
+}
+
+.island-btn-primary {
+    background: var(--bs-body-color);
+    color: var(--bs-body-bg);
+
+    .island-btn-icon { background: rgba(var(--bs-body-bg-rgb), 0.14); }
+    &:hover { color: var(--bs-body-bg); box-shadow: 0 16px 32px -16px rgba(30, 40, 90, 0.45); }
+}
+
+.island-btn-light {
+    background: #fff;
+    color: #0d0f17;
+
+    .island-btn-icon { background: rgba(13, 15, 23, 0.06); }
+    &:hover { color: #0d0f17; }
+}
+
+.island-btn-ghost {
+    color: #f5f5f7;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+
+    .island-btn-icon { background: rgba(255, 255, 255, 0.1); }
+    &:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+}
+
+.link-arrow { color: var(--bs-body-color); font-weight: 500; }
+
+// ---------- Eyebrow pills ----------
+
+.eyebrow-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    background: var(--shell);
+    box-shadow: 0 0 0 1px var(--shell-ring);
+    margin-bottom: 1.5rem;
+
+    &::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+    }
+}
+
+.banner-dark .eyebrow-pill {
+    color: #a1a1a6;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+// ---------- Macro whitespace ----------
+
+.banner { padding: 9rem 0 10rem; }
+.hero { padding-top: 11rem; }
+.bento-section { padding: 8rem 0 9rem; }
+.section-head { margin-bottom: 4rem; }
+.bento { gap: 1.25rem; }
+.banner.banner-soft { background: color-mix(in srgb, var(--page) 70%, var(--shell-ring)); }
+
+// Blur only on fixed layers: drop the old navbar's leftovers
+.pf-navbar { display: none; }
+
+// ---------- Responsive ----------
+
+@media (max-width: 1199.98px) {
+    .island-links { display: none; }
+    .burger { display: inline-block; }
+}
+
+@media (max-width: 767.98px) {
+    .banner { padding: 5.5rem 0 6.5rem; }
+    .hero { padding-top: 8rem; }
+    .bento-section { padding: 5rem 0 6rem; }
+    .bento { gap: 1.5rem; }
+    .container { padding-left: 1rem; padding-right: 1rem; }
+    .island { padding-left: 1rem; }
+    .cta-actions .island-btn { width: 100%; justify-content: space-between; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .menu-links a { transform: none; transition: opacity 0.3s ease; transition-delay: 0s; }
+    .island, .island.scrolled { transform: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .island, .menu-overlay { background: var(--bs-body-bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+// Beat Mazer's html[data-bs-theme="dark"] body rules, which load later
+html:root body.portfolio { background: var(--page); }
+
+// ---------- Edge-to-edge sections ----------
+// Section content spans the full viewport instead of Bootstrap's
+// fixed container widths; only a fluid side gutter remains.
+:root { --gutter: clamp(1rem, 3vw, 3rem); }
+
+.banner > .container,
+.bento-section > .container,
+.pf-footer > .container {
+    max-width: none;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+}
+
+.island-wrap { padding-left: var(--gutter); padding-right: var(--gutter); }
+
+// ---------- Glows without filter: blur ----------
+// Large filter: blur() layers get clipped to hard rectangles on some
+// Android GPUs. Paint the ambience as soft radial gradients instead.
+.glow {
+    filter: none !important;
+    background: radial-gradient(closest-side, rgba(var(--accent-rgb), 0.55), rgba(var(--accent-rgb), 0) 100%) !important;
+    width: 720px !important;
+    height: 720px !important;
+
+    &.g1 { top: -360px; left: -300px; }
+    &.g2 { top: 10%; right: -380px; left: auto; }
+    &.g3 { bottom: -420px; left: 20%; }
+}
+
+@media (max-width: 767.98px) {
+    .glow { width: 520px !important; height: 520px !important; }
+    .glow.g1 { top: -260px; left: -260px; }
+    .glow.g2 { right: -300px; }
+}
+
+// Round controls (keeps them round even if a base reset loads later)
+html .burger,
+html .theme-toggle { border-radius: 50%; }
+
+// Mazer is an admin template: it turns <body> into a flex row for its
+// sidebar layout. The portfolio is a normal document flow.
+html body.portfolio { display: block; }
+
+// ---------- Eyebrows: plain text, not a dotted pill ----------
+// The "• LABEL" capsule reads as a generic AI-template badge.
+.eyebrow-pill,
+.banner-dark .eyebrow-pill {
+    display: inline-block;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--accent);
+    margin-bottom: 1rem;
+
+    &::before { content: none; }
+}
+
+.banner-dark .eyebrow-pill { color: #a9b8f2; }
+
+// ---------- Full-bleed photo banner ----------
+.photo-banner {
+    position: relative;
+    min-height: min(92dvh, 860px);
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background: #0d0f17;
+    color: #f5f5f7;
+    isolation: isolate;
+
+    // Bottom-up scrim keeps the headline legible over the photo
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(to top, rgba(13, 15, 23, 0.92) 0%, rgba(13, 15, 23, 0.45) 45%, rgba(13, 15, 23, 0.1) 100%);
+    }
+}
+
+.photo-banner-img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 40% center;
+    transform: scale(1.06);
+    transition: transform 1.6s var(--ease-out);
+}
+
+.photo-banner.in-view .photo-banner-img { transform: scale(1); }
+
+.photo-banner-copy {
+    padding: 0 var(--gutter) clamp(3rem, 8vw, 6.5rem);
+    max-width: 1100px;
+
+    h2 { color: #f5f5f7; margin: 0; }
+    .eyebrow-pill { color: #a9b8f2; }
+}
+
+@media (max-width: 767.98px) {
+    .photo-banner { min-height: 78dvh; }
+    .photo-banner-img { object-position: 30% center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .photo-banner-img { transform: none; transition: none; }
+}
+
+// ---------- Photo tiles (double-bezel, caption over scrim) ----------
+.img-tile {
+    margin: 0;
+    padding: var(--bezel);
+    min-height: 280px;
+    justify-content: flex-end;
+    color: #fff;
+
+    &::before { display: none; } // the photo is the inner core
+
+    img {
+        position: absolute;
+        inset: var(--bezel);
+        width: calc(100% - var(--bezel) * 2);
+        height: calc(100% - var(--bezel) * 2);
+        object-fit: cover;
+        border-radius: var(--r-core);
+        transition: transform 1.2s var(--ease-out);
+    }
+
+    // Scrim lives on the caption's box so it matches the image radius
+    figcaption {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-top: auto;
+        padding: 4rem 1.5rem 1.5rem;
+        border-radius: 0 0 var(--r-core) var(--r-core);
+        background: linear-gradient(to top, rgba(10, 12, 20, 0.85), rgba(10, 12, 20, 0.35) 60%, transparent);
+    }
+
+    .img-tile-kicker {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .img-tile-title {
+        font-size: clamp(1.15rem, 1.8vw, 1.6rem);
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+        text-wrap: balance;
+        max-width: 28ch;
+    }
+
+    &.r2 { min-height: 420px; }
+    &.img-tile-wide { min-height: clamp(300px, 34vw, 460px); }
+    &.img-tile-wide .img-tile-title { font-size: clamp(1.4rem, 2.6vw, 2.2rem); max-width: 22ch; }
+
+    // Clip the scaling photo to the inner radius
+    overflow: hidden;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .img-tile:hover img { transform: scale(1.03); }
+}
+
+// ---------- Project cards: real photos ----------
+.proj-card .proj-visual {
+    height: 240px;
+    padding: 0;
+    overflow: hidden;
+    background: #1a1d29 !important;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1.2s var(--ease-out);
+    }
+}
+
+.proj-featured .proj-visual { min-height: 380px; }
+
+@media (hover: hover) and (pointer: fine) {
+    .proj-card:hover .proj-visual img { transform: scale(1.04); }
+}
+
+@media (max-width: 767.98px) {
+    .img-tile, .img-tile.r2 { min-height: 340px; }
+    .proj-card .proj-visual, .proj-featured .proj-visual { height: 220px; min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .img-tile img, .proj-card .proj-visual img { transition: none; transform: none !important; }
+}
+
+// ---------- Experience: current role cards + earlier-roles rail ----------
+.role-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 1.25rem;
+}
+
+.role-card {
+    padding: calc(2rem + var(--bezel));
+    gap: 0;
+}
+
+.role-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.role-now {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.role-type {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+
+.role-title {
+    font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+.role-org {
+    color: var(--bs-secondary-color);
+    font-size: 0.95rem;
+    margin-bottom: 1.75rem;
+}
+
+.role-points {
+    list-style: none;
+    padding: 0;
+    margin: auto 0 0;
+    display: grid;
+    gap: 0.85rem;
+
+    li {
+        position: relative;
+        padding-left: 1.4rem;
+        color: rgba(var(--bs-body-color-rgb), 0.82);
+        line-height: 1.5;
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.6em;
+            width: 0.55rem;
+            height: 1.5px;
+            background: var(--accent);
+        }
+    }
+}
+
+// Lead role reads as the hero of the section
+.role-card-lead::before {
+    background:
+        radial-gradient(120% 80% at 100% 0%, rgba(var(--accent-rgb), 0.10), transparent 60%),
+        var(--core);
+}
+
+.earlier-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 4rem 0 1.25rem;
+}
+
+// Horizontal scroll-snap rail (Apple-style gallery)
+.role-rail {
+    list-style: none;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 0.5rem var(--gutter) 1.5rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(280px, calc((100% - 3 * 1.25rem) / 4));
+    gap: 1.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+}
+
+.role-mini {
+    scroll-snap-align: start;
+    min-height: 240px;
+    padding: calc(1.5rem + var(--bezel));
+}
+
+.role-period {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: auto;
+    padding-bottom: 2rem;
+}
+
+.role-mini-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+}
+
+.role-summary {
+    font-size: 0.9rem;
+    color: var(--bs-secondary-color);
+    line-height: 1.5;
+}
+
+@media (max-width: 991.98px) {
+    .role-grid { grid-template-columns: minmax(0, 1fr); }
+    .role-rail { grid-auto-columns: minmax(260px, 72%); }
+}
+
+@media (max-width: 767.98px) {
+    .role-card { padding: calc(1.5rem + var(--bezel)); }
+    .role-meta { margin-bottom: 1.75rem; }
+    .earlier-head { margin-top: 3rem; }
+    .role-rail { grid-auto-columns: 82%; }
+}
+
+// ---------- Footer with quiet theme choice ----------
+.footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    font-size: 0.875rem;
+}
+
+.theme-choice {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.9rem;
+
+    .theme-choice-label { color: var(--bs-secondary-color); }
+
+    button {
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        color: var(--bs-secondary-color);
+        text-underline-offset: 4px;
+        transition: color 0.3s var(--ease-out);
+
+        &:hover { color: var(--bs-body-color); }
+
+        &[aria-checked="true"] {
+            color: var(--bs-body-color);
+            text-decoration: underline;
+            text-decoration-color: var(--accent);
+            text-decoration-thickness: 1.5px;
+        }
+    }
+}
+
+@media (max-width: 767.98px) {
+    .footer-row { flex-direction: column; align-items: flex-start; }
+}
+
+// ---------- Appearance switch (half-filled disc, no bubble) ----------
+.appearance {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    border-radius: 50%;
+
+    &:active .appearance-disc { transform: rotate(var(--disc-rot)) scale(0.88); }
+}
+
+// A ring with one half filled; rotating it 180° swaps which side is "lit"
+.appearance-disc {
+    --disc-rot: 0deg;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 1.5px solid var(--bs-body-color);
+    background: linear-gradient(90deg, var(--bs-body-color) 50%, transparent 50%);
+    transform: rotate(var(--disc-rot));
+    transition: transform 0.7s var(--ease-out), border-color 0.35s var(--ease-out);
+}
+
+[data-bs-theme="dark"] .appearance-disc { --disc-rot: 180deg; }
+
+@media (hover: hover) and (pointer: fine) {
+    .appearance:hover .appearance-disc { border-color: var(--accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .appearance-disc { transition: none; }
+}
+
+// Keep the disc's rotation during the global theme cross-fade
+html.theme-transition .appearance-disc {
+    transition: transform 0.7s var(--ease-out), border-color 0.35s var(--ease-out), background 0.35s var(--ease-out) !important;
+}
+
+// ---------- Scroll-tied background sections ----------
+// JS paints background-color inline every frame; text fades when a
+// [data-scroll-flip] section crosses into its dark state.
+[data-scroll-bg] {
+    h1, h2, h3, p, .lead-xl, .text-accent, .link-arrow {
+        transition: color 0.5s var(--ease-out);
+    }
+
+    .glow { transition: opacity 0.6s var(--ease-out); }
+}
+
+// Before the blend reaches its dark half, keep page-coloured text
+[data-scroll-flip]:not(.banner-dark) {
+    color: var(--bs-body-color);
+
+    h2 { color: var(--bs-heading-color, var(--bs-body-color)); }
+    .lead-xl { color: var(--bs-secondary-color) !important; }
+    .glow { opacity: 0; }
+}
+
+[data-scroll-flip]:not(.banner-dark) {
+    .island-btn-ghost {
+        color: var(--bs-body-color);
+        box-shadow: inset 0 0 0 1px var(--shell-ring);
+        .island-btn-icon { background: var(--shell); }
+    }
+    .island-btn-light {
+        background: var(--bs-body-color);
+        color: var(--bs-body-bg);
+        .island-btn-icon { background: rgba(var(--bs-body-bg-rgb), 0.14); }
+    }
+}
+
+.island-btn { transition: transform 0.5s var(--ease-out), background-color 0.5s var(--ease-out), color 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out); }
+
+// ---------- Blue scroll sections (Services, Contact) ----------
+// Text and cards tuned for the accent-blue background instead of black.
+[data-scroll-flip].banner-dark {
+    .lead-xl, .text-body-secondary { color: rgba(255, 255, 255, 0.82) !important; }
+    .text-accent { color: #fff; }
+    .glow { opacity: 0; }
+
+    .svc-card {
+        --core: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 24px 50px -28px rgba(10, 20, 70, 0.6);
+
+        &::before { box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2); }
+        &:hover { border-color: transparent; }
+
+        h3 { color: #fff; }
+        p { color: rgba(255, 255, 255, 0.78); }
+
+        .svc-ic {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+        }
+    }
+
+    .island-btn-light { color: #24398a; }
+    .island-btn-ghost { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4); }
+    :focus-visible { outline-color: #fff; }
+}
+
+// Static fallback (no JS) also uses blue, not black
+html:not(.js) [data-scroll-flip].banner-dark { background: #435ebe; }
+
+// ---------- Services: initial (pre-blue) state matches the page ----------
+// Before the section blends to blue, the cards are ordinary light
+// double-bezel tiles; they cross-fade into frosted glass on blue.
+[data-scroll-flip] .svc-card {
+    transition: background-color 0.6s var(--ease-out), box-shadow 0.6s var(--ease-out), transform 0.45s var(--ease-out);
+
+    &::before { transition: background-color 0.6s var(--ease-out), box-shadow 0.6s var(--ease-out); }
+    h3, p { transition: color 0.6s var(--ease-out); }
+    .svc-ic { transition: background-color 0.6s var(--ease-out), color 0.6s var(--ease-out); }
+}
+
+[data-scroll-flip]:not(.banner-dark) .svc-card {
+    background: var(--shell);
+    box-shadow: 0 0 0 1px var(--shell-ring), var(--ambient);
+
+    &::before {
+        background: var(--core);
+        box-shadow: var(--core-highlight);
+    }
+
+    h3 { color: var(--bs-body-color); }
+    p { color: var(--bs-secondary-color); }
+
+    .svc-ic {
+        background: rgba(var(--accent-rgb), 0.12);
+        color: var(--accent);
+    }
+}
+
+// Frosted state on blue: animate the core via background-color, not the
+// --core custom property (custom properties don't interpolate)
+[data-scroll-flip].banner-dark .svc-card::before {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+// ---------- Services cards: solid, no glass ----------
+// Same solid white card before and after the blue blend; no translucent
+// shell, inner highlight or frosted core.
+[data-scroll-flip] .svc-card,
+[data-scroll-flip].banner-dark .svc-card,
+[data-scroll-flip]:not(.banner-dark) .svc-card {
+    background: #fff;
+    padding: 1.75rem;
+    box-shadow: 0 1px 2px rgba(20, 30, 80, 0.06), 0 18px 40px -24px rgba(20, 30, 80, 0.35);
+
+    &::before { display: none; }
+
+    h3 { color: #0d0f17; }
+    p { color: #5b6170; }
+
+    .svc-ic {
+        background: rgba(67, 94, 190, 0.1);
+        color: #435ebe;
+    }
+}
+
+[data-bs-theme="dark"] [data-scroll-flip] .svc-card,
+[data-bs-theme="dark"] [data-scroll-flip].banner-dark .svc-card,
+[data-bs-theme="dark"] [data-scroll-flip]:not(.banner-dark) .svc-card {
+    background: #151a2e;
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.6);
+
+    h3 { color: #f5f5f7; }
+    p { color: #a3a9ba; }
+
+    .svc-ic {
+        background: rgba(127, 149, 230, 0.16);
+        color: #a9b8f2;
+    }
+}
+
+// ---------- About section (scroll-to-blue, editorial split) ----------
+.about-section {
+    text-align: left;
+    background: var(--page); // JS blends this toward blue on scroll
+
+    h2, .about-lead, .about-body p, dt, dd {
+        transition: color 0.6s var(--ease-out), border-color 0.6s var(--ease-out);
+    }
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: end;
+}
+
+.about-lead {
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+    max-width: 26ch;
+    margin: 0;
+    text-wrap: balance;
+}
+
+.about-body p {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    max-width: 52ch;
+    margin-bottom: 1.25rem;
+
+    &:last-child { margin-bottom: 0; }
+}
+
+.about-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem clamp(1.5rem, 4vw, 3rem);
+    margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+
+    .about-fact {
+        border-top: 1px solid;
+        padding-top: 1.25rem;
+    }
+
+    dt {
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        font-weight: 600;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        margin-bottom: 0.6rem;
+    }
+
+    dd {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+}
+
+// Before the blend: page colours
+.about-section:not(.banner-dark) {
+    h2, dt { color: var(--bs-body-color); }
+    .about-lead { color: var(--bs-body-color); }
+    .about-body p, dd { color: var(--bs-secondary-color); }
+    .about-fact { border-color: var(--shell-ring); }
+}
+
+// On blue: white type
+.about-section.banner-dark {
+    h2, dt, .about-lead { color: #fff; }
+    .about-body p, dd { color: rgba(255, 255, 255, 0.82); }
+    .about-fact { border-color: rgba(255, 255, 255, 0.28); }
+}
+
+html:not(.js) .about-section { background: #435ebe; }
+
+@media (max-width: 991.98px) {
+    .about-grid { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 2rem; }
+}
+
+@media (max-width: 575.98px) {
+    .about-facts { grid-template-columns: minmax(0, 1fr); }
+}
+
+// ---------- Wallet-style colour cards ----------
+// The card (section > .container) is always blue with white type.
+// JS blends the *section* background from the page colour to the same
+// blue on scroll, so the card's edges dissolve into the page.
+:root { --wallet-blue: #435ebe; }
+[data-bs-theme="dark"] { --wallet-blue: #24398a; }
+
+.banner[data-scroll-flip] {
+    padding: clamp(0.75rem, 1.5vw, 1.25rem) 0;
+    background: var(--page);
+}
+
+.banner[data-scroll-flip] > .container {
+    position: relative;
+    width: calc(100% - var(--gutter) * 2);
+    margin-inline: auto;
+    padding: clamp(5rem, 9vw, 8.5rem) clamp(1.25rem, 5vw, 4.5rem) clamp(5.5rem, 10vw, 9.5rem);
+    border-radius: clamp(1.75rem, 3vw, 2.75rem);
+    background: var(--wallet-blue);
+    color: #fff;
+}
+
+// Card content is fixed white-on-blue: no mid-scroll text flip
+.banner[data-scroll-flip] {
+    h2, dt, .about-lead, .text-accent { color: #fff !important; }
+    .lead-xl, .about-body p, dd, .text-body-secondary { color: rgba(255, 255, 255, 0.82) !important; }
+    .about-fact { border-color: rgba(255, 255, 255, 0.28) !important; }
+    .glow { display: none; }
+}
+
+// Contact buttons on the blue card
+.banner[data-scroll-flip] {
+    .island-btn-light {
+        background: #fff;
+        color: #24398a;
+        .island-btn-icon { background: rgba(36, 57, 138, 0.08); }
+    }
+    .island-btn-ghost {
+        color: #fff;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+        .island-btn-icon { background: rgba(255, 255, 255, 0.12); }
+    }
+}
+
+html:not(.js) .banner[data-scroll-flip] { background: var(--wallet-blue); }
+
+@media (max-width: 767.98px) {
+    .banner[data-scroll-flip] > .container {
+        width: calc(100% - 1.5rem);
+        border-radius: 1.75rem;
+    }
+}
+
+// ---------- About: plain page section (no card, no scroll blend) ----------
+.about-section {
+    background: var(--page);
+
+    h2, dt, .about-lead { color: var(--bs-body-color); }
+    .about-body p, dd { color: var(--bs-secondary-color); }
+    .about-fact { border-color: var(--shell-ring); }
+}
+
+// ---------- Contact: static full-bleed blue ----------
+.banner.banner-blue {
+    background: var(--wallet-blue);
+    color: #fff;
+
+    h2, .text-accent { color: #fff; }
+    .lead-xl { color: rgba(255, 255, 255, 0.82); }
+    .glow { display: none; }
+    :focus-visible { outline-color: #fff; }
+
+    .island-btn-light {
+        background: #fff;
+        color: #24398a;
+        .island-btn-icon { background: rgba(36, 57, 138, 0.08); }
+    }
+    .island-btn-ghost {
+        color: #fff;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+        .island-btn-icon { background: rgba(255, 255, 255, 0.12); }
+        &:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    }
+}
+
+// ---------- Services: editorial split inside the blue Wallet card ----------
+.services-split { text-align: left; }
+
+.svc-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2.5rem, 7vw, 7rem);
+    align-items: start;
+}
+
+.svc-intro {
+    position: sticky;
+    top: 7rem;
+
+    h2 { max-width: 14ch; }
+}
+
+.svc-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    line-height: 1.55;
+    max-width: 40ch;
+    color: rgba(255, 255, 255, 0.82);
+    margin-bottom: 2.25rem;
+}
+
+.svc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.svc-item {
+    display: grid;
+    grid-template-columns: 2.5rem 2.75rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    padding: 1.6rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.svc-num {
+    padding-top: 0.2rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.svc-glyph {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+
+    .ph-light { vertical-align: 0; }
+}
+
+.svc-text {
+    h3 {
+        font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: #fff;
+        margin: 0.35rem 0 0.4rem;
+    }
+
+    p {
+        margin: 0;
+        max-width: 48ch;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.78) !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .svc-split { grid-template-columns: minmax(0, 1fr); }
+    .svc-intro { position: static; }
+    .svc-intro h2 { max-width: none; }
+}
+
+@media (max-width: 575.98px) {
+    .svc-item { grid-template-columns: 2.75rem minmax(0, 1fr); }
+    .svc-num { display: none; }
+}
+
+// Sticky intro needs a non-clipping ancestor (banners default to overflow: hidden)
+.banner.services-split { overflow: visible; }
+
+// ---------- Services: blue panel that expands on scroll ----------
+// --p (0 → 1) is written by initScrollExpand(). At 0 the blue panel
+// covers only the left column; at 1 it fills the whole section.
+// Without JS, --p defaults to 1 (fully blue).
+.services-split {
+    --p: 1;
+    // List colours start on the page and reach white as the blue arrives
+    --mixp: clamp(0%, calc((var(--p) - 0.3) * 200%), 100%);
+
+    position: relative;
+    isolation: isolate;
+    background: var(--page);
+    color: var(--bs-body-color);
+
+    > .container { padding-inline: clamp(2rem, 6vw, 6rem); }
+}
+
+.svc-fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--wallet-blue);
+    clip-path: inset(
+        calc((1 - var(--p)) * var(--gutter))
+        calc((1 - var(--p)) * 50%)
+        calc((1 - var(--p)) * var(--gutter))
+        calc((1 - var(--p)) * var(--gutter))
+        round calc((1 - var(--p)) * 2.5rem)
+    );
+    will-change: clip-path;
+}
+
+// Left column always sits on blue
+.services-split .svc-intro {
+    h2 { color: #fff; }
+    .svc-lead { color: rgba(255, 255, 255, 0.85); }
+}
+
+// Right column blends from page colours to white-on-blue
+.services-split {
+    .svc-list { border-top-color: color-mix(in srgb, rgba(255, 255, 255, 0.28) var(--mixp), var(--shell-ring)); }
+    .svc-item { border-bottom-color: color-mix(in srgb, rgba(255, 255, 255, 0.28) var(--mixp), var(--shell-ring)); }
+    .svc-num { color: color-mix(in srgb, rgba(255, 255, 255, 0.6) var(--mixp), var(--bs-secondary-color)); }
+    .svc-text h3 { color: color-mix(in srgb, #fff var(--mixp), var(--bs-body-color)); }
+    .svc-text p { color: color-mix(in srgb, rgba(255, 255, 255, 0.8) var(--mixp), var(--bs-secondary-color)) !important; }
+    .svc-glyph {
+        background: color-mix(in srgb, rgba(255, 255, 255, 0.14) var(--mixp), rgba(var(--accent-rgb), 0.12));
+        color: color-mix(in srgb, #fff var(--mixp), var(--accent));
+    }
+}
+
+// Stacked layout: the panel starts over the intro (top) and grows down
+@media (max-width: 991.98px) {
+    .svc-fill {
+        clip-path: inset(
+            calc((1 - var(--p)) * 0.75rem)
+            calc((1 - var(--p)) * 0.75rem)
+            calc((1 - var(--p)) * 58%)
+            calc((1 - var(--p)) * 0.75rem)
+            round calc((1 - var(--p)) * 1.75rem)
+        );
+    }
+    .services-split > .container { padding-inline: 1.75rem; }
+}
+
+// ---------- Skills: grouped spec sheet with segment meters ----------
+.skills-sheet {
+    padding: calc(clamp(1.75rem, 3vw, 2.75rem) + var(--bezel));
+    gap: 0;
+}
+
+.skills-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-bottom: clamp(1.75rem, 3vw, 2.75rem);
+}
+
+.skills-title {
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+.skills-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+
+    > span { display: inline-flex; align-items: center; gap: 0.5rem; }
+}
+
+.skills-cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.skills-group-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+}
+
+.skills-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--shell-ring);
+}
+
+.skill-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--shell-ring);
+}
+
+.skill-name {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    min-width: 0;
+}
+
+.skill-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+
+.skill-level-text {
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+    min-width: 5.5em;
+    text-align: right;
+}
+
+// Three-segment level meter
+.meter {
+    display: inline-flex;
+    gap: 3px;
+
+    i {
+        width: 14px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(var(--accent-rgb), 0.18);
+    }
+
+    &[data-n="1"] i:nth-child(-n+1),
+    &[data-n="2"] i:nth-child(-n+2),
+    &[data-n="3"] i:nth-child(-n+3) { background: var(--accent); }
+}
+
+@media (max-width: 991.98px) {
+    .skills-cols { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+}
+
+@media (max-width: 575.98px) {
+    .skill-level-text { display: none; }
+}
+
+// ---------- Skills bento: strongest + icon rings ----------
+.skill-hero {
+    min-height: 260px;
+
+    .skill-hero-list {
+        list-style: none;
+        margin: 0.25rem 0 1.5rem;
+        padding: 0;
+
+        li {
+            font-size: clamp(1.9rem, 3.6vw, 3rem);
+            font-weight: 600;
+            letter-spacing: -0.045em;
+            line-height: 1.08;
+            color: #fff;
+        }
+    }
+}
+
+.skill-group-head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
+.skill-group-ic {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    background: rgba(var(--accent-rgb), 0.12);
+    color: var(--accent);
+
+    .ph-light { vertical-align: 0; }
+}
+
+.skill-group-title {
+    font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin: 0;
+}
+
+.skill-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.25rem 1rem;
+}
+
+.skill-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.skill-ring {
+    position: relative;
+    flex-shrink: 0;
+    width: 3.25rem;
+    height: 3.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 1.25rem;
+
+    svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    circle {
+        fill: none;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+    }
+
+    .ring-track { stroke: rgba(var(--accent-rgb), 0.14); }
+
+    .ring-fill {
+        stroke: var(--accent);
+        stroke-dasharray: 100;
+        stroke-dashoffset: calc(100 - var(--pct));
+    }
+
+    .ph-light { vertical-align: 0; }
+}
+
+// Rings draw in when their group scrolls into view (JS adds .is-in)
+html.js .skill-group:not(.is-in) .ring-fill { stroke-dashoffset: 100; }
+
+.skill-group .ring-fill {
+    transition: stroke-dashoffset 1.1s var(--ease-out);
+}
+
+.skill-group .skill-item:nth-child(2) .ring-fill { transition-delay: 0.08s; }
+.skill-group .skill-item:nth-child(3) .ring-fill { transition-delay: 0.16s; }
+.skill-group .skill-item:nth-child(4) .ring-fill { transition-delay: 0.24s; }
+.skill-group .skill-item:nth-child(5) .ring-fill { transition-delay: 0.32s; }
+
+.skill-item-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.skill-item-name {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+
+.skill-item-level {
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skill-group .ring-fill { transition: none; }
+}
+
+// ---------- Skills: icon + name only (no levels) ----------
+.skill-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    border-radius: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent);
+
+    .ph-light { vertical-align: 0; }
+}
+
+.skill-item-name { font-size: 1.02rem; }
+
+// ---------- Skills: single card, three columns ----------
+.skills-card {
+    padding: calc(clamp(1.75rem, 3.5vw, 3rem) + var(--bezel));
+}
+
+.skills-card-title {
+    font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    margin: 0 0 clamp(1.75rem, 3vw, 2.75rem);
+}
+
+.skills-card-cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.skills-card-group {
+    padding: 0 clamp(1.25rem, 3vw, 2.5rem);
+    border-left: 1px solid var(--shell-ring);
+
+    &:first-child { padding-left: 0; border-left: 0; }
+    &:last-child { padding-right: 0; }
+
+    .skill-items {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .skills-card-cols { grid-template-columns: minmax(0, 1fr); }
+
+    .skills-card-group {
+        padding: 1.75rem 0 0;
+        margin-top: 1.75rem;
+        border-left: 0;
+        border-top: 1px solid var(--shell-ring);
+
+        &:first-child { padding-top: 0; margin-top: 0; border-top: 0; }
+    }
+}
+
+// Section labels on coloured banners follow the banner's text colour
+.about-section .eyebrow-pill,
+.banner-blue .eyebrow-pill {
+    color: currentColor;
+    opacity: 0.75;
+}
+
+// ---------- Experience: one card per employer, roles as a path ----------
+.xp-list { display: grid; gap: 1.25rem; }
+
+.xp-company {
+    display: grid;
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    gap: 3rem;
+    padding: 2.5rem;
+}
+
+.xp-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    align-self: start;
+}
+
+.xp-mark {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--bs-secondary-color);
+    background: var(--shell);
+    box-shadow: inset 0 0 0 1px var(--shell-ring);
+}
+
+.xp-company.is-current .xp-mark {
+    color: #fff;
+    background: var(--accent);
+    box-shadow: none;
+}
+
+.xp-org {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0.15rem 0 0.2rem;
+}
+
+.xp-legal,
+.xp-span {
+    font-size: 0.85rem;
+    margin: 0;
+    color: var(--bs-secondary-color);
+}
+
+.xp-span { margin-top: 0.35rem; font-variant-numeric: tabular-nums; }
+
+.xp-roles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2.25rem;
+}
+
+// Several roles at one employer: a hairline links them, newest on top
+.xp-roles.is-path {
+    position: relative;
+    padding-left: 1.75rem;
+
+    &::before {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 0.55rem;
+        bottom: 0.55rem;
+        width: 1px;
+        background: var(--shell-ring);
+    }
+
+    .xp-role { position: relative; }
+
+    .xp-role::before {
+        content: "";
+        position: absolute;
+        left: calc(-1.75rem);
+        top: 0.5rem;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--page);
+        box-shadow: inset 0 0 0 2px var(--accent);
+    }
+}
+
+.xp-role-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+}
+
+.xp-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0;
+}
+
+.xp-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    color: var(--bs-secondary-color);
+    box-shadow: inset 0 0 0 1px var(--shell-ring);
+    white-space: nowrap;
+}
+
+.xp-period {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.3rem 0 1rem;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--bs-secondary-color);
+
+    &.is-now { color: var(--accent); font-weight: 500; }
+}
+
+.xp-points {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.5rem;
+    max-width: 68ch;
+
+    li {
+        line-height: 1.6;
+        color: var(--bs-secondary-color);
+        &::marker { color: var(--accent); }
+    }
+}
+
+.xp-tags {
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    li {
+        font-size: 0.78rem;
+        font-weight: 500;
+        padding: 0.25rem 0.65rem;
+        border-radius: 999px;
+        color: var(--bs-body-color);
+        background: var(--shell);
+    }
+}
+
+@media (max-width: 991.98px) {
+    .xp-company { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; padding: 1.75rem; }
+}
+
+@media (max-width: 575.98px) {
+    .xp-company { padding: 1.35rem; }
+    .xp-title { font-size: 1.15rem; }
+}
+
+// Beat the generic .tile flex column so the company header pins to the top
+.tile.xp-company { display: grid; align-items: start; }
+.xp-company > .xp-head { align-self: start; margin: 0; }
+.xp-points { list-style: disc outside; }
+
+// ---------- Skills: one card per group, 3-step proficiency meter ----------
+.sk-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.tile.sk-card { padding: 2.25rem; justify-content: flex-start; }
+
+.sk-icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    font-size: 1.6rem;
+    color: var(--accent);
+    background: var(--shell);
+    box-shadow: inset 0 0 0 1px var(--shell-ring);
+    margin-bottom: 1.5rem;
+}
+
+.sk-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.4rem;
+}
+
+.sk-desc {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--bs-secondary-color);
+    margin: 0 0 1.5rem;
+}
+
+.sk-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--shell-ring);
+}
+
+.sk-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--shell-ring);
+
+    &:last-child { border-bottom: 0; padding-bottom: 0; }
+}
+
+.sk-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--bs-body-color);
+}
+
+.sk-level {
+    flex: none;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+}
+
+.sk-meter {
+    display: inline-flex;
+    gap: 3px;
+
+    i {
+        width: 14px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--shell-ring);
+    }
+
+    i.on { background: var(--accent); }
+}
+
+.sk-level-text {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--bs-secondary-color);
+}
+
+[data-bs-theme="dark"] .sk-meter i { background: rgba(255, 255, 255, 0.14); }
+[data-bs-theme="dark"] .sk-meter i.on { background: var(--accent); }
+
+@media (max-width: 991.98px) {
+    .sk-grid { grid-template-columns: minmax(0, 1fr); }
+    .tile.sk-card { padding: 1.75rem; }
+}

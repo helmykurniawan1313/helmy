@@ -1,0 +1,291 @@
+// ---------------------------------------------------------------
+// Landing: Apple-style banner sections + Google AI gradients
+// ---------------------------------------------------------------
+
+:root {
+    --ai-1: #4285f4;
+    --ai-2: #9b72cb;
+    --ai-3: #d96570;
+    --ai-gradient: linear-gradient(90deg, var(--ai-1), var(--ai-2) 50%, var(--ai-3));
+}
+
+.text-gradient {
+    background: var(--ai-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+// Display typography (Apple-like: big, tight, bold)
+.display-xl {
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+}
+
+.display-lg {
+    font-size: clamp(2rem, 5vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+}
+
+.lead-xl {
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+    color: var(--bs-secondary-color);
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.eyebrow {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 1rem;
+}
+
+.btn-pill {
+    border-radius: 999px;
+    padding: 0.7rem 1.6rem;
+    font-weight: 700;
+}
+
+.link-arrow {
+    font-weight: 700;
+    text-decoration: none;
+
+    i { transition: transform 0.2s ease; display: inline-block; }
+    &:hover i { transform: translateX(4px); }
+}
+
+// Banner sections
+.banner {
+    position: relative;
+    padding: 7rem 0;
+    text-align: center;
+    overflow: hidden;
+    isolation: isolate;
+
+    &.banner-dark {
+        background: #0b0b0f;
+        color: #f5f5f7;
+
+        .lead-xl, .text-body-secondary { color: #a1a1a6 !important; }
+        h1, h2, h3, .h5, .h6 { color: #f5f5f7; }
+    }
+
+    &.banner-soft {
+        background: var(--bs-tertiary-bg);
+    }
+}
+
+// Soft blurred colour glows (Gemini-style)
+.glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+    z-index: -1;
+    pointer-events: none;
+
+    &.g1 { width: 480px; height: 480px; background: var(--ai-1); top: -120px; left: -120px; }
+    &.g2 { width: 420px; height: 420px; background: var(--ai-2); top: 20%; right: -140px; }
+    &.g3 { width: 380px; height: 380px; background: var(--ai-3); bottom: -160px; left: 30%; }
+}
+
+// Hero
+.hero {
+    padding: 9.5rem 0 4rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-visual {
+    position: relative;
+    width: min(360px, 78vw);
+    margin: 3.5rem auto 0;
+
+    img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 2.5rem;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+    }
+
+    // gradient ring
+    &::before {
+        content: "";
+        position: absolute;
+        inset: -6px;
+        border-radius: calc(2.5rem + 6px);
+        background: var(--ai-gradient);
+        z-index: 0;
+    }
+
+    .float-chip {
+        position: absolute;
+        z-index: 2;
+        background: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        border-radius: 999px;
+        padding: 0.55rem 1rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+        animation: float 5s ease-in-out infinite;
+
+        &.f1 { left: -70px; top: 18%; }
+        &.f2 { right: -80px; top: 48%; animation-delay: -1.5s; }
+        &.f3 { left: -40px; bottom: 8%; animation-delay: -3s; }
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.scroll-hint {
+    margin-top: 3rem;
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+
+    i { display: block; font-size: 1.2rem; animation: float 2s ease-in-out infinite; }
+}
+
+// Section header above bento grids
+.section-head {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.bento-section {
+    padding: 6rem 0;
+}
+
+// Service cards inside dark banner
+.svc-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 3.5rem;
+    text-align: left;
+}
+
+.svc-card {
+    background: #1c1c21;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.5rem;
+    padding: 1.75rem;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: rgba(155, 114, 203, 0.6);
+    }
+
+    .svc-ic {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        color: #fff;
+        background: var(--ai-gradient);
+        margin-bottom: 1.25rem;
+
+        .bi::before { vertical-align: middle; }
+    }
+
+    h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    p { color: #a1a1a6; font-size: 0.92rem; margin: 0; }
+}
+
+// Project showcase cards
+.proj-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 3.5rem;
+    text-align: left;
+}
+
+.proj-card {
+    border-radius: 1.75rem;
+    overflow: hidden;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.1);
+    }
+
+    .proj-visual {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: #fff;
+        position: relative;
+
+        .bi::before { vertical-align: middle; }
+    }
+
+    &:nth-child(1) .proj-visual { background: linear-gradient(135deg, #4285f4, #9b72cb); }
+    &:nth-child(2) .proj-visual { background: linear-gradient(135deg, #9b72cb, #d96570); }
+    &:nth-child(3) .proj-visual { background: linear-gradient(135deg, #d96570, #f4b400); }
+
+    .proj-body { padding: 1.5rem; }
+}
+
+// CTA banner
+.cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+// Gradient border for highlighted bento tiles
+.tile.t-gradient {
+    background: var(--ai-gradient);
+    border-color: transparent;
+    color: #fff;
+
+    .tile-label, .text-body-secondary { color: rgba(255, 255, 255, 0.85) !important; }
+    .tile-big, h2, h3 { color: #fff; }
+}
+
+// Navbar over hero: lighter look
+.pf-navbar .navbar-brand { letter-spacing: -0.02em; }
+
+@media (max-width: 991.98px) {
+    .svc-row, .proj-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hero-visual .float-chip { display: none; }
+}
+
+@media (max-width: 575.98px) {
+    .banner { padding: 4.5rem 0; }
+    .hero { padding-top: 7rem; min-height: auto; }
+    .bento-section { padding: 4rem 0; }
+    .svc-row, .proj-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-visual .float-chip, .scroll-hint i { animation: none; }
+}

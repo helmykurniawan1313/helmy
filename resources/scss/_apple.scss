@@ -1,0 +1,254 @@
+// ---------------------------------------------------------------
+// Apple-style refinements (see .claude/skills/apple-design)
+// Loaded last; overrides earlier portfolio/bento/landing styles.
+// ---------------------------------------------------------------
+
+:root {
+    // §15 Default to the system font (SF Pro on Apple devices)
+    --bs-body-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable", "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+    --bs-body-line-height: 1.55;
+    --display-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+
+    // One easing family everywhere: fast start, long soft settle (critically damped feel)
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-press: cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+body.portfolio {
+    font-family: var(--bs-body-font-family);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+// ---------- §15 Typography: size-specific tracking & leading ----------
+
+h1, h2, h3, h4, h5, h6, .display-xl, .display-lg, .tile-big {
+    font-family: var(--display-font);
+    font-optical-sizing: auto;
+}
+
+.display-xl { letter-spacing: -0.04em; line-height: 1.03; font-weight: 700; }
+.display-lg { letter-spacing: -0.03em; line-height: 1.07; font-weight: 700; }
+.tile-big   { letter-spacing: -0.04em; font-weight: 700; }
+.h4, h4     { letter-spacing: -0.015em; }
+.h5, h5, .h6, h6 { letter-spacing: -0.01em; }
+
+.lead-xl {
+    letter-spacing: -0.005em;
+    line-height: 1.45;
+}
+
+// Small text gets slightly positive tracking for legibility
+.small, small, .tile-label, .chip, .badge, .svc-desc {
+    letter-spacing: 0.01em;
+}
+
+// Eyebrows: Apple uses sentence-case, medium weight, not shouty caps
+.tile-label {
+    text-transform: none;
+    letter-spacing: 0.005em;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.eyebrow {
+    font-size: clamp(1rem, 1.6vw, 1.2rem);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+}
+
+// ---------- §12 Materials: translucent nav, scroll-edge instead of hard divider ----------
+
+.pf-navbar {
+    background-color: rgba(var(--bs-body-bg-rgb), 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 0;
+    transition: box-shadow 0.3s var(--ease-out), background-color 0.3s var(--ease-out);
+
+    // Scroll edge: hairline appears only once content scrolls under the bar
+    &::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 1px;
+        background: var(--bs-border-color-translucent);
+        opacity: 0;
+        transition: opacity 0.3s var(--ease-out);
+    }
+
+    &.scrolled {
+        box-shadow: none;
+        &::after { opacity: 1; }
+    }
+
+    // Vibrancy: text over blur needs a touch more weight/contrast
+    .nav-link {
+        font-weight: 500;
+        font-size: 0.92rem;
+        letter-spacing: 0.005em;
+        color: rgba(var(--bs-body-color-rgb), 0.82);
+    }
+
+    .navbar-brand { font-family: var(--display-font); font-weight: 700; }
+}
+
+// ---------- §1 Response: instant feedback on press, not release ----------
+
+.btn,
+.theme-toggle,
+.lang-toggle a,
+.contact-link,
+.link-arrow,
+.nav-link {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; // kills the ~300ms tap delay
+}
+
+.btn,
+.theme-toggle,
+.lang-toggle a,
+.contact-link {
+    transition: transform 0.16s var(--ease-press), background-color 0.2s var(--ease-out), color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+
+    &:active {
+        transform: scale(0.97);
+        transition-duration: 0.08s; // press lands immediately
+    }
+}
+
+.tile, .svc-card, .proj-card {
+    &:active { transform: scale(0.99); transition-duration: 0.1s; }
+}
+
+// Hover lift only on real pointers; touch devices get no sticky hover state
+.tile, .svc-card, .proj-card {
+    transition: transform 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out), border-color 0.3s var(--ease-out);
+}
+
+@media (hover: none) {
+    .tile:hover, .svc-card:hover, .proj-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+// Calmer hover: smaller lift, softer shadow
+@media (hover: hover) and (pointer: fine) {
+    .tile:hover      { transform: translateY(-2px); box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.18); }
+    .svc-card:hover  { transform: translateY(-2px); }
+    .proj-card:hover { transform: translateY(-3px); box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.2); }
+}
+
+// Pill buttons: Apple CTA proportions
+.btn-pill {
+    font-weight: 600;
+    padding: 0.72rem 1.4rem;
+    letter-spacing: -0.005em;
+}
+
+// ---------- Surfaces: larger radius, hairline borders, depth by size ----------
+
+.tile {
+    border-radius: 1.75rem;
+    border-color: rgba(var(--bs-body-color-rgb), 0.06);
+}
+
+.svc-card, .proj-card { border-radius: 1.75rem; }
+
+// ---------- §7 / reveal: one direction, soft settle ----------
+
+.reveal {
+    transform: translateY(16px);
+    transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+}
+
+// Stagger siblings slightly so grids settle in reading order
+.bento > .reveal:nth-child(2), .svc-row > .reveal:nth-child(2), .proj-row > .reveal:nth-child(2) { transition-delay: 0.05s; }
+.bento > .reveal:nth-child(3), .svc-row > .reveal:nth-child(3), .proj-row > .reveal:nth-child(3) { transition-delay: 0.1s; }
+.bento > .reveal:nth-child(4), .svc-row > .reveal:nth-child(4) { transition-delay: 0.15s; }
+.bento > .reveal:nth-child(5), .svc-row > .reveal:nth-child(5) { transition-delay: 0.2s; }
+.bento > .reveal:nth-child(6), .svc-row > .reveal:nth-child(6) { transition-delay: 0.25s; }
+
+// §14 avoid endless slow oscillations: scroll hint bobs a few times then rests
+.scroll-hint i { animation: float 1.6s var(--ease-out) 3; }
+
+// §14 ease theme changes instead of an abrupt brightness jump
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+    transition: background-color 0.35s var(--ease-out), color 0.35s var(--ease-out), border-color 0.35s var(--ease-out) !important;
+}
+
+// ---------- §14 Accessibility preferences ----------
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    // Cross-fade instead of slide
+    .reveal {
+        transform: none;
+        transition: opacity 0.3s ease;
+        transition-delay: 0s !important;
+    }
+
+    .tile, .svc-card, .proj-card,
+    .tile:hover, .svc-card:hover, .proj-card:hover { transform: none !important; }
+
+    .scroll-hint i, .pulse-dot { animation: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .pf-navbar {
+        background-color: var(--bs-body-bg);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+    .glow { display: none; }
+}
+
+@media (prefers-contrast: more) {
+    .pf-navbar { background-color: var(--bs-body-bg); backdrop-filter: none; }
+    .pf-navbar::after { opacity: 1; background: var(--bs-border-color); }
+    .tile, .proj-card { border-color: var(--bs-border-color); }
+    .svc-card { border-color: rgba(255, 255, 255, 0.35); }
+    .text-gradient { background: none; color: var(--bs-primary); }
+    .glow { display: none; }
+}
+
+// ---------- Library-driven enhancements (resources/js/enhance.js) ----------
+
+// Motion drives reveals now. Content is visible by default (no-JS / crawlers);
+// it is only pre-hidden once JS has booted.
+.reveal,
+.reveal.visible {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s !important;
+}
+
+html.js .reveal { opacity: 0; }
+
+// NumberFlow inherits the tile's display typography
+number-flow {
+    font-variant-numeric: tabular-nums;
+    --number-flow-char-height: 1em;
+}
+
+// Cobe globe tucked into the Location tile
+.globe {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    right: -60px;
+    top: -40px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tile:has(.globe) > :not(.globe) {
+    position: relative;
+    z-index: 1;
+}

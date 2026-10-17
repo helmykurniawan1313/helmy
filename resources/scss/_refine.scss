@@ -1,0 +1,232 @@
+// ---------------------------------------------------------------
+// Redesign pass (see .claude/skills/redesign-existing-projects)
+// One accent colour; the AI gradient is reserved for the two
+// headline accents only (hero + closing CTA).
+// ---------------------------------------------------------------
+
+:root {
+    --accent: #435ebe;
+    --accent-rgb: 67, 94, 190;
+    // Shadows tinted with the accent hue instead of neutral black
+    --shadow-tint: 30, 40, 90;
+    --radius-outer: 1.75rem;
+    --radius-inner: 0.875rem;
+}
+
+[data-bs-theme="dark"] {
+    --accent: #7f95e6;
+    --accent-rgb: 127, 149, 230;
+    --shadow-tint: 0, 0, 10;
+}
+
+.text-accent { color: var(--accent); }
+
+// ---------- Typography ----------
+
+h1, h2, h3, .display-xl, .display-lg { text-wrap: balance; }
+p, li, .lead-xl { text-wrap: pretty; }
+.tile p, .svc-card p, .proj-card p { max-width: 65ch; }
+.lead-xl { max-width: 60ch; }
+
+// ---------- Hero: dynamic viewport, optical padding ----------
+
+.hero { min-height: 100dvh; }
+
+.banner { padding: 7rem 0 8rem; } // bottom slightly heavier than top
+
+@media (max-width: 575.98px) {
+    .banner { padding: 4.5rem 0 5.25rem; }
+}
+
+// ---------- Surfaces: single accent, tinted depth, grain ----------
+
+.tile.t-accent {
+    background:
+        radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.18), transparent 55%),
+        var(--accent);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 20px 40px -24px rgba(var(--accent-rgb), 0.65);
+
+    .tile-label, .text-body-secondary, .small { color: rgba(255, 255, 255, 0.82) !important; }
+    .tile-big, h2, h3, .h5 { color: #fff; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .tile:hover { box-shadow: 0 20px 40px -22px rgba(var(--shadow-tint), 0.28); }
+    .proj-card:hover { box-shadow: 0 28px 56px -26px rgba(var(--shadow-tint), 0.32); }
+}
+
+// Nested radius: inner elements tighter than their containers
+.svc .icon-box, .tile .icon-box, .svc-card .svc-ic, .proj-icon { border-radius: var(--radius-inner); }
+
+// Grain overlay to break digital flatness (fixed, non-interactive)
+body.portfolio::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+[data-bs-theme="dark"] body.portfolio::after { opacity: 0.06; }
+
+// Skill legend dots (was inline styles)
+.legend .lvl-advanced     { background: var(--accent); }
+.legend .lvl-intermediate { background: rgba(var(--accent-rgb), 0.55); }
+.legend .lvl-basic        { background: rgba(var(--accent-rgb), 0.25); }
+
+// Dark banner: off-black tinted toward the accent, not neutral black
+.banner.banner-dark { background: #0d0f17; }
+
+// ---------- Services: asymmetric 4-col bento instead of 3 equal columns ----------
+
+.svc-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    > :nth-child(1), > :nth-child(6) { grid-column: span 2; }
+}
+
+.svc-card {
+    background: #161926;
+
+    .svc-ic {
+        background: rgba(var(--accent-rgb), 0.18);
+        color: #a9b8f2;
+    }
+
+    &:hover { border-color: rgba(var(--accent-rgb), 0.55); }
+
+    // Wide cards: icon beside text
+    &:nth-child(1), &:nth-child(6) {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 1.25rem;
+        align-content: start;
+
+        .svc-ic { grid-row: span 2; margin-bottom: 0; }
+    }
+}
+
+// ---------- Projects: featured + stacked instead of 3 equal cards ----------
+
+.proj-row {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-auto-rows: auto;
+}
+
+.proj-card {
+    display: flex;
+    flex-direction: column;
+
+    .proj-visual {
+        background:
+            radial-gradient(90% 120% at 15% 0%, rgba(255, 255, 255, 0.22), transparent 60%),
+            var(--accent) !important;
+        height: 160px;
+        font-size: 3rem;
+    }
+
+    &:nth-child(3) .proj-visual {
+        background:
+            radial-gradient(90% 120% at 85% 100%, rgba(255, 255, 255, 0.18), transparent 60%),
+            #2f437f !important;
+    }
+
+    .proj-body { margin-top: auto; }
+}
+
+.proj-featured {
+    grid-row: span 2;
+
+    .proj-visual {
+        flex: 1;
+        min-height: 300px;
+        font-size: 5.5rem;
+    }
+
+    h3 { font-size: 1.5rem; }
+}
+
+// ---------- States & accessibility ----------
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+.btn:focus-visible, .lang-toggle a:focus-visible, .theme-toggle:focus-visible {
+    box-shadow: none;
+    outline-offset: 2px;
+}
+
+.banner-dark :focus-visible { outline-color: #a9b8f2; }
+
+main:focus { outline: none; }
+
+.skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2100;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-inner);
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-160%);
+    transition: transform 0.2s var(--ease-out, ease);
+
+    &:focus { transform: none; color: #fff; }
+}
+
+// ---------- Responsive ----------
+
+@media (max-width: 991.98px) {
+    .svc-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .proj-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .proj-featured { grid-column: span 2; grid-row: auto; }
+    .proj-featured .proj-visual { min-height: 220px; }
+}
+
+@media (max-width: 575.98px) {
+    .svc-row, .proj-row { grid-template-columns: minmax(0, 1fr); }
+    .svc-row > :nth-child(1), .svc-row > :nth-child(6), .proj-featured { grid-column: auto; }
+    .svc-card:nth-child(1), .svc-card:nth-child(6) { display: block; }
+    .svc-card:nth-child(1) .svc-ic, .svc-card:nth-child(6) .svc-ic { margin-bottom: 1.25rem; }
+}
+
+@media (prefers-contrast: more) {
+    body.portfolio::after { display: none; }
+}
+
+// ---------- No AI gradient: single accent everywhere ----------
+// Remap the old gradient tokens to the one accent so any leftover
+// usage stays on-palette, and keep glows as a soft single-hue ambience.
+:root,
+[data-bs-theme="dark"] {
+    --ai-1: var(--accent);
+    --ai-2: var(--accent);
+    --ai-3: var(--accent);
+    --ai-gradient: var(--accent);
+}
+
+.text-gradient {
+    background: none;
+    color: var(--accent);
+}
+
+.glow {
+    background: rgba(var(--accent-rgb), 1) !important;
+    opacity: 0.16;
+
+    &.g2 { opacity: 0.1; }
+    &.g3 { opacity: 0.08; }
+}
+
+.banner-dark .glow { opacity: 0.22; }
+.banner-dark .text-accent { color: #a9b8f2; }
