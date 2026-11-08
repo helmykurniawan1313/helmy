@@ -30,7 +30,7 @@ p, li, .lead-xl { text-wrap: pretty; }
 
 // ---------- Hero: dynamic viewport, optical padding ----------
 
-.hero { min-height: 100dvh; }
+.hero { min-height: 100vh; min-height: 100svh; }
 
 .banner { padding: 7rem 0 8rem; } // bottom slightly heavier than top
 

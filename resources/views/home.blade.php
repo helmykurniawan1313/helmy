@@ -53,6 +53,11 @@
         <p class="lead-xl mb-4 reveal">{{ $b['hero_sub'] }}</p>
         <div class="d-flex flex-wrap gap-3 justify-content-center align-items-center reveal">
             <a href="#contact" class="island-btn island-btn-primary">{{ $ui['cta_contact'] }} <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span></a>
+            @if (\App\Support\Resume::available())
+                <a href="{{ route('resume') }}" class="island-btn island-btn-outline" download>
+                    {{ $ui['download_cv'] }} <span class="island-btn-icon"><i class="ph-light ph-download-simple"></i></span>
+                </a>
+            @endif
             <a href="#projects" class="link-arrow">{{ $ui['cta_projects'] }} <i class="ph-light ph-caret-right"></i></a>
         </div>
 
@@ -83,7 +88,12 @@
         <div class="about-grid">
             <div class="about-intro reveal">
                 <span class="eyebrow-pill">{{ $p['nav']['about'] }}</span>
-                <h2 id="about-title" class="display-lg mb-4">{{ $about['title'] }}</h2>
+                @php
+                    // Highlight the last word of the title ("Helmy.") with the brand gradient
+                    $aboutWords = preg_split('/\s+/', trim($about['title']));
+                    $aboutLast = array_pop($aboutWords);
+                @endphp
+                <h2 id="about-title" class="display-lg mb-4">{{ implode(' ', $aboutWords) }} <span class="about-name">{{ $aboutLast }}</span></h2>
                 <p class="about-lead">{{ $about['lead'] }}</p>
             </div>
             <div class="about-body reveal">
@@ -94,7 +104,7 @@
             </div>
         </div>
 
-        <dl class="about-facts">
+        <dl class="about-facts" data-about-facts>
             <div class="about-fact reveal">
                 <dt>{{ $current['title'] }}</dt>
                 <dd>{{ $ui['now'] }} · {{ $current['org'] }}</dd>
@@ -104,7 +114,7 @@
                 <dd>{{ $ui['region'] }}</dd>
             </div>
             <div class="about-fact reveal">
-                <dt>{{ $years }}+</dt>
+                <dt><span data-flow="{{ $years }}">{{ $years }}</span><span class="about-plus">+</span></dt>
                 <dd>{{ $ui['years_desc'] }}</dd>
             </div>
         </dl>
@@ -124,9 +134,14 @@
                     {{ $ui['cta_contact'] }}
                     <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span>
                 </a>
+                <div class="svc-progress reveal" aria-hidden="true">
+                    <span class="svc-count"><strong data-svc-now>01</strong> / {{ str_pad(count($p['services']), 2, '0', STR_PAD_LEFT) }}</span>
+                    <span class="svc-bar"><i data-svc-bar></i></span>
+                    <span class="svc-current" data-svc-title>{{ $p['services'][0]['title'] ?? '' }}</span>
+                </div>
             </div>
 
-            <ol class="svc-list">
+            <ol class="svc-list" data-svc-spotlight>
                 @foreach ($p['services'] as $service)
                     <li class="svc-item reveal">
                         <span class="svc-num">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
@@ -154,6 +169,7 @@
             'legal' => $m[2] ?? null,
             'mark' => strtoupper(mb_substr($words[0] ?? $name, 0, 1) . mb_substr($words[1] ?? '', 0, 1)),
             'span' => explode(' - ', $roles->last()['period'])[0] . ' – ' . explode(' - ', $roles->first()['period'])[1],
+            'logo' => $roles->pluck('logo')->filter()->first(),
             'current' => $roles->contains('current', true),
             'roles' => $roles,
         ];
@@ -170,15 +186,21 @@
             @foreach ($companies as $co)
                 <article @class(['tile xp-company reveal', 'is-current' => $co['current']])>
                     <header class="xp-head">
-                        <span class="xp-mark" aria-hidden="true">{{ $co['mark'] }}</span>
-                        <div>
-                            <h3 class="xp-org">{{ $co['name'] }}</h3>
-                            @if ($co['legal'])<p class="xp-legal">{{ $co['legal'] }}</p>@endif
-                            <p class="xp-span">{{ $co['span'] }}</p>
-                        </div>
+                      <div class="xp-head-in">
+                          @if ($co['logo'])
+                              <span class="xp-mark has-logo"><img src="{{ asset($co['logo']) }}" alt="{{ $co['name'] }}" width="56" height="56" loading="lazy" decoding="async"></span>
+                          @else
+                              <span class="xp-mark" aria-hidden="true">{{ $co['mark'] }}</span>
+                          @endif
+                          <div>
+                              <h3 class="xp-org">{{ $co['name'] }}</h3>
+                              @if ($co['legal'])<p class="xp-legal">{{ $co['legal'] }}</p>@endif
+                              <p class="xp-span">{{ $co['span'] }}</p>
+                          </div>
+                      </div>
                     </header>
 
-                    <ol @class(['xp-roles', 'is-path' => $co['roles']->count() > 1])>
+                    <ol class="xp-roles is-path" data-xp-track>
                         @foreach ($co['roles'] as $role)
                             <li class="xp-role">
                                 <div class="xp-role-top">
@@ -216,20 +238,25 @@
     $skillGroups = collect($p['skills'])->groupBy('group');
     $groupIcons = ['infra' => 'ph-hard-drives', 'dev' => 'ph-code', 'creative' => 'ph-palette'];
 @endphp
-<section class="bento-section" id="skills" aria-labelledby="skills-title">
+<section class="bento-section skills-blue" id="skills" data-scroll-bg="#3651b4" data-scroll-bg-dark="#17245a" data-scroll-fill aria-labelledby="skills-title">
+    <span class="sk-fill" aria-hidden="true"></span>
     <div class="container">
+      <div class="sk-panel" data-fill-from>
         <div class="section-head reveal">
             <span class="eyebrow-pill">{{ $p['nav']['skills'] }}</span>
             <h2 id="skills-title" class="display-lg">{{ $b['skills_title'] }}</h2>
         </div>
+      </div>
 
         <div class="sk-grid">
             @foreach ($p['skill_groups'] as $gKey => $gName)
                 @php $items = ($skillGroups[$gKey] ?? collect())->sortByDesc(fn ($s) => $levelRank[$s['level']])->values(); @endphp
                 <section class="tile sk-card reveal" aria-labelledby="sk-{{ $gKey }}">
-                    <span class="sk-icon" aria-hidden="true"><i class="ph-light {{ $groupIcons[$gKey] }}"></i></span>
-                    <h3 id="sk-{{ $gKey }}" class="sk-title">{{ $gName }}</h3>
-                    <p class="sk-desc">{{ $p['skill_group_desc'][$gKey] }}</p>
+                    <div class="sk-head">
+                        <span class="sk-icon" aria-hidden="true"><i class="ph-light {{ $groupIcons[$gKey] }}"></i></span>
+                        <h3 id="sk-{{ $gKey }}" class="sk-title">{{ $gName }}</h3>
+                        <p class="sk-desc">{{ $p['skill_group_desc'][$gKey] }}</p>
+                    </div>
 
                     <ul class="sk-list">
                         @foreach ($items as $skill)
@@ -252,29 +279,6 @@
     </div>
 </section>
 
-{{-- ========== 05 PROJECTS ========== --}}
-<section class="banner banner-soft" id="projects" data-scroll-bg="#e3e9fb" data-scroll-bg-dark="#121a36" aria-labelledby="projects-title">
-    <span class="glow g1"></span>
-    <div class="container">
-        <span class="eyebrow-pill reveal">{{ $p['nav']['projects'] }}</span>
-        <h2 id="projects-title" class="display-lg mb-3 reveal">{{ $b['projects_title'] }}</h2>
-        <p class="lead-xl reveal">{{ $b['projects_sub'] }}</p>
-
-        <div class="proj-row">
-            @foreach ($p['projects'] as $project)
-                <article @class(["proj-card reveal", "proj-featured" => $loop->first])>
-                    <div class="proj-visual"><img src="{{ asset($project['image']) }}" alt="{{ $project['title'] }} – {{ $project['client'] }}" loading="lazy" decoding="async" width="1200" height="800"></div>
-                    <div class="proj-body">
-                        <span class="badge bg-light-primary mb-2">{{ $project['category'] }}</span>
-                        <h3 class="h5 fw-bold mb-1">{{ $project['title'] }}</h3>
-                        <p class="text-body-secondary mb-0">{{ $project['client'] }}</p>
-                    </div>
-                </article>
-            @endforeach
-        </div>
-    </div>
-</section>
-
 {{-- ========== 06 EDUCATION & CERTIFICATIONS ========== --}}
 <section class="bento-section" id="education" aria-labelledby="edu-title">
     <div class="container">
@@ -283,10 +287,10 @@
             <h2 id="edu-title" class="display-lg">{{ $b['foundation_title'] }}</h2>
         </div>
 
-        <h3 class="h5 fw-semibold mb-3 reveal">{{ $ui['education'] }}</h3>
-        <div class="bento mb-5">
+        <h3 class="sub-head reveal"><i class="ph-light ph-graduation-cap"></i> {{ $ui['education'] }} <span>{{ count($p['education']) }}</span></h3>
+        <div class="bento edu-bento mb-5">
             @foreach ($p['education'] as $edu)
-                <div class="tile c2 reveal {{ $loop->first ? 'r2' : '' }}">
+                <div class="tile c2 edu-card reveal">
                     <span class="tile-label"><i class="ph-light ph-graduation-cap"></i> {{ $edu['period'] }}</span>
                     <h4 class="h4 fw-bold mb-1">{{ $edu['degree'] }}</h4>
                     <div class="text-body-secondary fw-semibold mb-3">{{ $edu['school'] }}</div>
@@ -298,29 +302,199 @@
                 </div>
             @endforeach
 
-            <div class="tile t-accent reveal">
-                <span class="tile-label"><i class="ph-light ph-calendar-check"></i> Cum laude</span>
-                <div class="tile-big mt-auto"><span data-flow="{{ $p['gpa'] }}" data-flow-decimals="2">{{ $p['gpa'] }}</span></div>
-                <div class="small text-body-secondary">{{ $ui['gpa_desc'] }} · {{ $b['semesters'] }}</div>
+            <div class="tile c2 t-accent hl-card reveal">
+                <div class="hl-num"><span data-flow="{{ $p['gpa'] }}" data-flow-decimals="2">{{ $p['gpa'] }}</span></div>
+                <div class="hl-text">
+                    <span class="tile-label"><i class="ph-light ph-calendar-check"></i> Cum laude</span>
+                    <div class="hl-title">{{ $ui['gpa_desc'] }}</div>
+                    <div class="small">{{ $b['semesters'] }}</div>
+                </div>
             </div>
 
-            <div class="tile reveal">
-                <span class="tile-label"><i class="ph-light ph-trophy"></i> EIS 2019</span>
-                <div class="h5 fw-bold mt-auto mb-1">Google Indonesia</div>
-                <div class="small text-body-secondary">Data Science Indonesia · Gapura Digital</div>
+            <div class="tile c2 hl-card reveal">
+                <div class="hl-icon"><i class="ph-light ph-trophy"></i></div>
+                <div class="hl-text">
+                    <span class="tile-label">{{ $ui['eis_label'] }}</span>
+                    <div class="hl-title">{{ $ui['eis_title'] }}</div>
+                    <div class="small text-body-secondary">{{ $ui['eis_desc'] }}</div>
+                </div>
             </div>
         </div>
 
-        <h3 class="h5 fw-semibold mb-3 reveal">{{ $ui['certificates'] }}</h3>
-        <div class="bento">
-            @foreach ($p['certificates'] as $cert)
-                <div class="tile reveal">
-                    <span class="tile-label"><i class="ph-light ph-medal"></i> {{ $cert['short'] }} · {{ $cert['date'] }}</span>
-                    <div class="h6 fw-bold mt-auto mb-1">{{ $cert['title'] }}</div>
-                    <div class="small text-body-secondary">{{ $cert['issuer'] }}</div>
-                </div>
+        @php
+            $initials = function ($s) {
+                $words = array_values(array_filter(preg_split('/\s+/', trim(preg_replace('/\(.*?\)/', '', (string) $s)))));
+                if (count($words) > 1) return mb_strtoupper(mb_substr($words[0], 0, 1).mb_substr($words[1], 0, 1));
+                $w = $words[0] ?? '?';
+                if (mb_strlen($w) <= 4) return mb_strtoupper($w);
+                return preg_match('/^.[^A-Z]*([A-Z])/', $w, $m) ? mb_strtoupper(mb_substr($w, 0, 1)).$m[1] : mb_strtoupper(mb_substr($w, 0, 2));
+            };
+            $creds = collect($p['certificates'])->map(fn ($c) => $c + ['kind' => 'cert', 'org' => $c['short'] ?? $c['issuer']])
+                ->concat(collect($p['badges'] ?? [])->map(fn ($c) => $c + ['kind' => 'badge', 'org' => $c['issuer']]));
+        @endphp
+        @foreach (['cert' => ['label' => $ui['certificates'], 'icon' => 'ph-certificate'], 'badge' => ['label' => $ui['badges'], 'icon' => 'ph-seal-check']] as $kind => $group)
+            @php $items = $creds->where('kind', $kind); @endphp
+            @continue($items->isEmpty())
+            <h3 @class(['sub-head reveal', 'mt-5' => ! $loop->first])><i class="ph-light {{ $group['icon'] }}"></i> {{ $group['label'] }} <span>{{ $items->count() }}</span></h3>
+            <div class="cred-grid">
+                @foreach ($items as $cred)
+                    <article @class(['tile cred-card reveal', 'is-badge' => $kind === 'badge', 'is-cert' => $kind === 'cert', 'has-link' => ! empty($cred['url'])])>
+                        <div class="cred-top">
+                            @if (! empty($cred['logo']))
+                                <span class="cred-mark has-logo"><img src="{{ asset($cred['logo']) }}" alt="{{ $cred['org'] }}" width="48" height="48" loading="lazy" decoding="async"></span>
+                            @else
+                                <span class="cred-mark" aria-hidden="true">{{ $initials($cred['org']) }}</span>
+                            @endif
+                            <span class="cred-date"><i class="ph-light ph-calendar-blank"></i> {{ $cred['date'] }}</span>
+                        </div>
+                        <h4 class="cred-title">{{ $cred['title'] }}</h4>
+                        <div class="cred-issuer">{{ $cred['issuer'] }}</div>
+                        @if (! empty($cred['credential_id']) || ! empty($cred['url']))
+                            <div class="cred-foot">
+                                @if (! empty($cred['credential_id']))<span class="cred-id" title="{{ $ui['credential_id'] }}">{{ $ui['cred_label'] }} {{ $cred['credential_id'] }}</span>@endif
+                                @if (! empty($cred['url']))
+                                    <a class="cred-go" href="{{ $cred['url'] }}" target="_blank" rel="noopener" aria-label="{{ $ui['show_credential'] }}: {{ $cred['title'] }}" title="{{ $ui['show_credential'] }}">
+                                        <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span>
+                                    </a>
+                                @endif
+                            </div>
+                        @endif
+                    </article>
+                @endforeach
+            </div>
+        @endforeach
+    </div>
+</section>
+
+{{-- ========== PUBLICATIONS ========== --}}
+@if (! empty($p['publications']))
+<section class="bento-section pub-section" id="publications" aria-labelledby="pub-title">
+    <div class="container pub-split">
+        <div class="pub-intro reveal">
+            <span class="eyebrow-pill">{{ $p['nav']['publications'] }}</span>
+            <h2 id="pub-title" class="display-lg">{{ $b['publications_title'] }}</h2>
+            <p class="pub-count"><strong>{{ count($p['publications']) }}</strong> {{ $ui['pub_count'] }}</p>
+        </div>
+
+        <ol class="pub-list">
+            @foreach ($p['publications'] as $pub)
+                <li class="tile pub-item reveal">
+                    <div class="pub-meta">
+                        @if (! empty($pub['year']))<span class="pub-year">{{ $pub['year'] }}</span>@endif
+                        @if (! empty($pub['type']))<span class="pub-type">{{ $ui['pub_types'][$pub['type']] ?? $pub['type'] }}</span>@endif
+                    </div>
+                    <h3 class="pub-title">{{ $pub['title'] }}</h3>
+                    @if (! empty($pub['authors']))<p class="pub-authors">{{ $pub['authors'] }}</p>@endif
+                    @if (! empty($pub['venue']))<p class="pub-venue"><i class="ph-light ph-book-open-text"></i> {{ $pub['venue'] }}</p>@endif
+                    @if (! empty($pub['abstract']))<p class="pub-abstract">{{ $pub['abstract'] }}</p>@endif
+                    @if (! empty($pub['url']))
+                        <a href="{{ $pub['url'] }}" class="island-btn island-btn-light pub-link" target="_blank" rel="noopener" aria-label="{{ $ui['pub_read'] }}: {{ $pub['title'] }}">
+                            {{ $ui['pub_read'] }} <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span>
+                        </a>
+                    @endif
+                </li>
+            @endforeach
+        </ol>
+    </div>
+</section>
+@endif
+
+{{-- ========== 05 PROJECTS ========== --}}
+<section class="banner banner-soft" id="projects" data-scroll-bg="#e3e9fb" data-scroll-bg-dark="#121a36" aria-labelledby="projects-title">
+    <span class="glow g1"></span>
+    <div class="container">
+        <span class="eyebrow-pill reveal">{{ $p['nav']['projects'] }}</span>
+        <h2 id="projects-title" class="display-lg mb-3 reveal">{{ $b['projects_title'] }}</h2>
+        <p class="lead-xl reveal">{{ $b['projects_sub'] }}</p>
+
+        @php
+            $works = collect($p['projects'])->map(function ($w) {
+                $w['type'] = in_array($w['type'] ?? null, ['project', 'image', 'video'], true) ? $w['type'] : 'project';
+                $w['embed'] = null;
+                $v = $w['video'] ?? '';
+                if ($v) {
+                    if (preg_match('~(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/))([\w-]{11})~', $v, $m)) {
+                        $w['embed'] = ['kind' => 'iframe', 'src' => "https://www.youtube-nocookie.com/embed/{$m[1]}?autoplay=1&rel=0"];
+                        $w['image'] ??= "https://i.ytimg.com/vi/{$m[1]}/hqdefault.jpg";
+                    } elseif (preg_match('~vimeo\.com/(?:video/)?(\d+)~', $v, $m)) {
+                        $w['embed'] = ['kind' => 'iframe', 'src' => "https://player.vimeo.com/video/{$m[1]}?autoplay=1"];
+                    } else {
+                        $w['embed'] = ['kind' => 'video', 'src' => $v];
+                    }
+                }
+                $w['src'] = empty($w['image']) ? null : (str_starts_with($w['image'], 'http') ? $w['image'] : asset($w['image']));
+                return $w;
+            });
+            $typeMeta = [
+                'project' => ['label' => $ui['work_dev'] ?? 'Development', 'icon' => 'ph-code'],
+                'image' => ['label' => $ui['work_photo'] ?? 'Photo & Design', 'icon' => 'ph-image'],
+                'video' => ['label' => $ui['work_video'] ?? 'Video', 'icon' => 'ph-film-slate'],
+            ];
+            $present = $works->pluck('type')->unique();
+            $workData = $works->map(fn ($w) => [
+                'type' => $w['type'], 'title' => $w['title'], 'client' => $w['client'] ?? null, 'description' => $w['description'] ?? null,
+                'src' => $w['src'], 'embed' => $w['embed'], 'link' => $w['link'] ?? null, 'tech' => (array) ($w['tech'] ?? []),
+            ])->values();
+        @endphp
+
+        @php $activeTab = collect(array_keys($typeMeta))->first(fn ($t) => $present->contains($t)) ?? 'project'; @endphp
+        <div class="work-filter reveal" role="tablist" aria-label="{{ $p['nav']['projects'] }}">
+            @foreach ($typeMeta as $t => $meta)
+                <button type="button" id="tab-{{ $t }}" @class(['is-active' => $t === $activeTab]) data-filter="{{ $t }}" role="tab"
+                        aria-selected="{{ $t === $activeTab ? 'true' : 'false' }}" aria-controls="work-panel">
+                    <i class="ph-light {{ $meta['icon'] }}"></i> {{ $meta['label'] }} <span>{{ $works->where('type', $t)->count() }}</span>
+                </button>
             @endforeach
         </div>
+
+        <p class="work-empty" data-work-empty @if ($present->contains($activeTab)) hidden @endif>
+            <i class="ph-light ph-hourglass-medium"></i> {{ $ui['work_empty'] ?? 'New work coming soon.' }}
+        </p>
+
+        <div class="proj-row work-grid" id="work-panel" role="tabpanel" aria-labelledby="tab-{{ $activeTab }}" data-work-grid>
+            @php $shownInTab = 0; @endphp
+            @foreach ($works as $i => $work)
+                @php $show = $work['type'] === $activeTab && $shownInTab++ < 6; @endphp
+                <article class="proj-card work-card reveal" data-type="{{ $work['type'] }}" @unless ($show) hidden @endunless>
+                    <button type="button" class="work-open" data-work="{{ $i }}" aria-label="{{ $work['title'] }}">
+                        <div class="proj-visual">
+                            @if ($work['src'])
+                                <img src="{{ $work['src'] }}" alt="{{ $work['title'] }}" loading="lazy" decoding="async" width="1200" height="800">
+                            @else
+                                <i class="ph-light {{ $work['icon'] ?? $typeMeta[$work['type']]['icon'] }} work-placeholder"></i>
+                            @endif
+                            <span class="work-type"><i class="ph-light {{ $typeMeta[$work['type']]['icon'] }}"></i> {{ $typeMeta[$work['type']]['label'] }}</span>
+                            @if ($work['type'] === 'video')<span class="work-play"><i class="ph-fill ph-play"></i></span>@endif
+                        </div>
+                    </button>
+                    <div class="proj-body">
+                        @if (! empty($work['category']))<span class="badge bg-light-primary mb-2">{{ $work['category'] }}</span>@endif
+                        <h3 class="h5 fw-bold mb-1">{{ $work['title'] }}</h3>
+                        @if (! empty($work['client']))<p class="text-body-secondary mb-0">{{ $work['client'] }}</p>@endif
+                        @if (! empty($work['tech']))
+                            <div class="work-tech">@foreach ((array) $work['tech'] as $t)<span>{{ $t }}</span>@endforeach</div>
+                        @endif
+                        @if (! empty($work['link']))
+                            <a href="{{ $work['link'] }}" class="link-arrow small mt-2 d-inline-block" target="_blank" rel="noopener">{{ $ui['work_visit'] ?? 'Visit site' }} <i class="ph-light ph-arrow-up-right"></i></a>
+                        @endif
+                    </div>
+                </article>
+            @endforeach
+        </div>
+
+        <div class="work-more" data-work-more @if ($works->where('type', $activeTab)->count() <= 6) hidden @endif>
+            <button type="button" class="island-btn island-btn-primary" aria-controls="work-panel" aria-expanded="false">
+                {{ $ui['work_more'] ?? 'View more' }} <span class="work-more-count">+<span data-more-count>{{ max(0, $works->where('type', $activeTab)->count() - 6) }}</span></span>
+                <span class="island-btn-icon"><i class="ph-light ph-caret-down"></i></span>
+            </button>
+        </div>
+
+        <dialog class="work-viewer" data-work-viewer data-visit="{{ $ui['work_visit'] }}" aria-label="{{ $p['nav']['projects'] }}">
+            <button type="button" class="work-close" data-work-close aria-label="Close"><i class="ph-light ph-x"></i></button>
+            <div class="work-stage" data-work-stage></div>
+            <div class="work-caption" data-work-caption></div>
+        </dialog>
+        <script type="application/json" id="work-data">@json($workData)</script>
     </div>
 </section>
 

@@ -1,6 +1,24 @@
 import { animate, inView, stagger } from 'motion';
 import NumberFlow, { define } from 'number-flow';
 
+/**
+ * Stable viewport height for scroll effects. On phones the address bar
+ * shows/hides while scrolling, which changes innerHeight and made scroll-tied
+ * effects jump. This value only updates when the WIDTH changes (rotation,
+ * window resize), so it behaves like CSS svh.
+ */
+let stableVh = typeof window !== 'undefined' ? window.innerHeight : 800;
+let stableVw = typeof window !== 'undefined' ? window.innerWidth : 0;
+if (typeof window !== 'undefined') {
+    window.addEventListener('resize', () => {
+        if (window.innerWidth !== stableVw) {
+            stableVw = window.innerWidth;
+            stableVh = window.innerHeight;
+        }
+    });
+}
+const viewH = () => stableVh;
+
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Critically damped spring: no overshoot for content that simply appears
@@ -124,7 +142,7 @@ export function initGlobe() {
 
 // Slow settle-in zoom on the photo banner when it enters the viewport
 export function initPhotoBanner() {
-    document.querySelectorAll('.photo-banner').forEach((el) => {
+    document.querySelectorAll('.photo-banner, [data-about-facts]').forEach((el) => {
         inView(el, () => { el.classList.add('in-view'); }, { amount: 0.25 });
     });
 }
@@ -170,7 +188,7 @@ export function initScrollBg() {
     }));
 
     const progress = (el) => {
-        const vh = window.innerHeight;
+        const vh = viewH();
         const startAt = 0.55;
         const raw = (vh * startAt - el.getBoundingClientRect().top) / (vh * startAt);
         return Math.min(1, Math.max(0, raw));
@@ -179,7 +197,9 @@ export function initScrollBg() {
     const paint = (s) => {
         const color = mix(s.from, s.to, s.current);
         if (color !== s.painted) {
-            s.el.style.backgroundColor = color;
+            if (!s.el.hasAttribute('data-scroll-fill')) s.el.style.backgroundColor = color;
+            s.el.style.setProperty('--scroll-p', s.current.toFixed(3));
+            s.el.classList.toggle('is-filled', s.current > 0.5);
             s.painted = color;
         }
     };
@@ -260,7 +280,7 @@ export function initScrollExpand() {
     if (!sections.length) return;
 
     const progress = (el) => {
-        const vh = window.innerHeight;
+        const vh = viewH();
         const startAt = 0.6;
         const raw = (vh * startAt - el.getBoundingClientRect().top) / (vh * startAt);
         return Math.min(1, Math.max(0, raw));
@@ -316,3 +336,119 @@ export function initScrollExpand() {
     window.addEventListener('resize', kick, { passive: true });
 }
 
+
+/**
+ * A card that grows to fill its section on scroll. The blue layer starts at the
+ * card's rectangle (measured here) and expands to the section edges; CSS animates
+ * it with clip-path using --scroll-p from initScrollBg.
+ */
+export function initScrollFill() {
+    document.querySelectorAll('[data-scroll-fill]').forEach((section) => {
+        const card = section.querySelector('[data-fill-from]');
+        if (!card) return;
+        const measure = () => {
+            const s = section.getBoundingClientRect();
+            const c = card.getBoundingClientRect();
+            section.style.setProperty('--fill-t', `${Math.max(0, c.top - s.top)}px`);
+            section.style.setProperty('--fill-r', `${Math.max(0, s.right - c.right)}px`);
+            section.style.setProperty('--fill-b', `${Math.max(0, s.bottom - c.bottom)}px`);
+            section.style.setProperty('--fill-l', `${Math.max(0, c.left - s.left)}px`);
+        };
+        measure();
+        addEventListener('resize', measure);
+        addEventListener('load', measure);
+        document.fonts?.ready.then(measure);
+        new ResizeObserver(measure).observe(section);
+    });
+}
+
+/**
+ * Experience timeline: the line beside the roles fills as you scroll through a
+ * company (--xp-p), and each role's dot lights up when its role reaches the
+ * reading line.
+ */
+export function initXpTimeline() {
+    const tracks = [...document.querySelectorAll('[data-xp-track]')];
+    if (!tracks.length) return;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let ticking = false;
+
+    const update = () => {
+        ticking = false;
+        const line = viewH() * 0.6;
+        tracks.forEach((track) => {
+            const r = track.getBoundingClientRect();
+            if (r.bottom < -200 || r.top > viewH() + 200) return;
+            const p = reduced.matches ? 1 : Math.min(1, Math.max(0, (line - r.top) / Math.max(1, r.height)));
+            track.style.setProperty('--xp-p', p.toFixed(3));
+            track.querySelectorAll('.xp-role').forEach((role) => {
+                role.classList.toggle('is-lit', reduced.matches || role.getBoundingClientRect().top < line);
+            });
+        });
+    };
+
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+    update();
+}
+
+/**
+ * Services spotlight: the service crossing the reading line becomes active
+ * (others dim); a counter + bar in the sticky intro follows along. Hover also
+ * spotlights on pointer devices.
+ */
+export function initSvcSpotlight() {
+    const list = document.querySelector('[data-svc-spotlight]');
+    if (!list) return;
+    const items = [...list.querySelectorAll('.svc-item')];
+    const section = list.closest('section') || list;
+    const now = document.querySelector('[data-svc-now]');
+    const bar = document.querySelector('[data-svc-bar]');
+    const title = document.querySelector('[data-svc-title]');
+    let active = -1;
+    let hovered = -1;
+    let ticking = false;
+    let lastExpand = -1;
+
+    const set = (i) => {
+        if (i === active) return;
+        active = i;
+        list.classList.toggle('has-active', i >= 0);
+        items.forEach((el, n) => el.classList.toggle('is-active', n === i));
+        const shown = Math.max(0, i);
+        if (now) now.textContent = String(shown + 1).padStart(2, '0');
+        if (bar) bar.style.transform = `scaleX(${(shown + 1) / items.length})`;
+        if (title) title.textContent = items[shown]?.querySelector('h3')?.textContent ?? '';
+    };
+
+    const fromScroll = () => {
+        ticking = false;
+        if (hovered >= 0) return;
+        const r = list.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > viewH()) { set(-1); return; }
+        // Wait until the blue panel has fully expanded before spotlighting
+        const expand = parseFloat(getComputedStyle(section).getPropertyValue('--p')) || 0;
+        if (section.hasAttribute('data-scroll-expand') && expand < 0.98) {
+            set(-1);
+            if (expand !== lastExpand) { lastExpand = expand; requestAnimationFrame(fromScroll); }
+            return;
+        }
+        lastExpand = expand;
+        const line = viewH() * 0.5;
+        let idx = 0;
+        items.forEach((el, n) => { if (el.getBoundingClientRect().top <= line) idx = n; });
+        set(idx);
+    };
+
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(fromScroll); } }, { passive: true });
+    addEventListener('resize', fromScroll);
+
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        items.forEach((el, n) => {
+            el.addEventListener('mouseenter', () => { hovered = n; active = -2; set(n); });
+            el.addEventListener('mouseleave', () => { hovered = -1; fromScroll(); });
+        });
+    }
+    fromScroll();
+}

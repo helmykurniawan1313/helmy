@@ -1,0 +1,50 @@
+// Admin panel: the stock Mazer theme (light + dark) and its auth page
+@import "../mazer/assets/scss/app";
+@import "../mazer/assets/scss/themes/dark/app-dark";
+@import "../mazer/assets/scss/pages/auth";
+
+// ---------- Small additions on top of Mazer ----------
+.sidebar-wrapper .logo a {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #25396f;
+    letter-spacing: -0.02em;
+
+    span { color: var(--bs-primary); }
+}
+
+[data-bs-theme="dark"] :is(.sidebar-wrapper .logo a, .auth-logo-text) { color: #fff; }
+
+.auth-logo-text {
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--bs-heading-color, #25396f);
+
+    span { color: var(--bs-primary); }
+}
+
+#auth-right .auth-quote {
+    position: absolute;
+    left: 3rem;
+    right: 3rem;
+    bottom: 3rem;
+    color: #fff;
+
+    h2 { color: #fff; font-weight: 700; }
+    p { color: rgba(255, 255, 255, 0.8); margin: 0; }
+}
+
+#auth-right { position: relative; }
+
+@import "./admin-ui";
+
+// Mazer's auth.scss uses a path relative to its own folder, which Sass doesn't rebase
+#auth #auth-right {
+    background: url("../mazer/assets/static/images/bg/4853433.png"), $page-auth-right-bg;
+}
+
+[data-bs-theme="dark"] #auth #auth-right {
+    background: url("../mazer/assets/static/images/bg/4853433.png"), linear-gradient(90deg, #151521, #151521);
+}
+@import "./login";

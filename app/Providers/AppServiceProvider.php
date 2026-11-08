@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\Settings;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // AI keys/models saved in the admin override .env
+        Settings::apply();
     }
 }

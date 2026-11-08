@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Support\PortfolioContent;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -9,10 +10,12 @@ use Throwable;
 
 /**
  * Answers visitor questions using only the portfolio data.
- * Tries providers in the order set by ASSISTANT_PROVIDERS (default: Gemini, then Groq).
+ * Tries providers in the order set in the admin (or ASSISTANT_PROVIDERS).
  */
 class PortfolioAssistant
 {
+    public const PROVIDERS = ['gemini', 'groq', 'openrouter'];
+
     /**
      * @param  array<int, array{role: string, content: string}>  $messages
      * @return array{reply: string, provider: string}
@@ -28,9 +31,7 @@ class PortfolioAssistant
             }
 
             try {
-                $reply = $provider === 'groq'
-                    ? $this->askGroq($system, $messages)
-                    : $this->askGemini($system, $messages);
+                $reply = $this->ask($provider, $system, $messages);
 
                 if (trim($reply) !== '') {
                     return ['reply' => trim($reply), 'provider' => $provider];
@@ -45,12 +46,66 @@ class PortfolioAssistant
         throw new RuntimeException('No AI provider available.');
     }
 
+    /** Per-call overrides for long jobs (e.g. resume writing). */
+    private array $limits = ['tokens' => null, 'timeout' => null];
+
+    /**
+     * One-off completion with the same provider order and fallback as the chat,
+     * but with room for long output.
+     *
+     * @return array{text: string, provider: string}
+     */
+    public function complete(string $system, string $prompt, int $maxTokens = 6000, int $timeout = 90): array
+    {
+        $this->limits = ['tokens' => $maxTokens, 'timeout' => $timeout];
+        $errors = [];
+
+        try {
+            foreach ($this->providers() as $provider) {
+                if (! config("services.{$provider}.key")) {
+                    continue;
+                }
+                try {
+                    $text = trim($this->ask($provider, $system, [['role' => 'user', 'content' => $prompt]]));
+                    if ($text !== '') {
+                        return ['text' => $text, 'provider' => $provider];
+                    }
+                } catch (Throwable $e) {
+                    $errors[] = "{$provider}: {$e->getMessage()}";
+                }
+            }
+        } finally {
+            $this->limits = ['tokens' => null, 'timeout' => null];
+        }
+
+        Log::warning('AI completion failed', ['errors' => $errors]);
+
+        throw new RuntimeException($errors ? 'All AI providers failed: '.implode(' | ', $errors) : 'No AI provider has a key.');
+    }
+
+    /** Send a one-word prompt to check a provider's key and model. Throws on failure. */
+    public function ping(string $provider): string
+    {
+        $messages = [['role' => 'user', 'content' => 'Reply with the single word: OK']];
+
+        return trim($this->ask($provider, 'You are a connectivity check.', $messages));
+    }
+
+    private function ask(string $provider, string $system, array $messages): string
+    {
+        return match ($provider) {
+            'groq' => $this->askGroq($system, $messages),
+            'gemini' => $this->askGemini($system, $messages),
+            'openrouter' => $this->askOpenRouter($system, $messages),
+        };
+    }
+
     /** @return array<int, string> providers in the order to try them */
     private function providers(): array
     {
         $order = array_map('trim', explode(',', (string) config('services.assistant.providers')));
 
-        return array_values(array_intersect($order, ['gemini', 'groq']));
+        return array_values(array_intersect($order, self::PROVIDERS));
     }
 
     private function askGroq(string $system, array $messages): string
@@ -59,7 +114,7 @@ class PortfolioAssistant
         $payload = [
             'model' => $model,
             'temperature' => 0.3,
-            'max_tokens' => 1500,
+            'max_tokens' => $this->limits['tokens'] ?? 1500,
             'messages' => [
                 ['role' => 'system', 'content' => $system],
                 ...$messages,
@@ -72,8 +127,33 @@ class PortfolioAssistant
         }
 
         $response = Http::withToken(config('services.groq.key'))
-            ->timeout(20)
+            ->connectTimeout(5)->timeout($this->limits['timeout'] ?? 15)
             ->post('https://api.groq.com/openai/v1/chat/completions', $payload)
+            ->throw();
+
+        return (string) $response->json('choices.0.message.content', '');
+    }
+
+    /** OpenRouter: one key for many models (OpenAI-compatible API). */
+    private function askOpenRouter(string $system, array $messages): string
+    {
+        $response = Http::withToken(config('services.openrouter.key'))
+            ->withHeaders([
+                // Optional attribution headers OpenRouter shows in its app rankings
+                'HTTP-Referer' => config('app.url'),
+                'X-Title' => config('app.name'),
+            ])
+            ->connectTimeout(5)
+            ->timeout($this->limits['timeout'] ?? 20)
+            ->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model' => config('services.openrouter.model'),
+                'temperature' => 0.3,
+                'max_tokens' => $this->limits['tokens'] ?? 1500,
+                'messages' => [
+                    ['role' => 'system', 'content' => $system],
+                    ...$messages,
+                ],
+            ])
             ->throw();
 
         return (string) $response->json('choices.0.message.content', '');
@@ -84,14 +164,14 @@ class PortfolioAssistant
         $model = config('services.gemini.model');
 
         $response = Http::withHeaders(['x-goog-api-key' => config('services.gemini.key')])
-            ->timeout(25)
+            ->connectTimeout(5)->timeout($this->limits['timeout'] ?? 12)
             ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
                 'system_instruction' => ['parts' => [['text' => $system]]],
                 'contents' => array_map(fn ($m) => [
                     'role' => $m['role'] === 'assistant' ? 'model' : 'user',
                     'parts' => [['text' => $m['content']]],
                 ], $messages),
-                'generationConfig' => ['temperature' => 0.3, 'maxOutputTokens' => 2048],
+                'generationConfig' => ['temperature' => 0.3, 'maxOutputTokens' => $this->limits['tokens'] ?? 2048],
             ])
             ->throw();
 
@@ -100,8 +180,7 @@ class PortfolioAssistant
 
     private function systemPrompt(string $locale): string
     {
-        app()->setLocale($locale);
-        $p = config('portfolio') + __('portfolio');
+        $p = PortfolioContent::for($locale);
 
         $experience = collect($p['experiences'])->map(fn ($e) => "- {$e['title']} at {$e['org']} ({$e['period']}, {$e['type']})\n"
             .collect($e['points'])->map(fn ($pt) => "  • {$pt}")->implode("\n")

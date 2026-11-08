@@ -494,7 +494,7 @@ html body.portfolio { display: block; }
 // ---------- Full-bleed photo banner ----------
 .photo-banner {
     position: relative;
-    min-height: min(92dvh, 860px);
+    min-height: min(92vh, 860px); min-height: min(92svh, 860px);
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -535,7 +535,7 @@ html body.portfolio { display: block; }
 }
 
 @media (max-width: 767.98px) {
-    .photo-banner { min-height: 78dvh; }
+    .photo-banner { min-height: 78vh; min-height: 78svh; }
     .photo-banner-img { object-position: 30% center; }
 }
 
@@ -1911,4 +1911,1696 @@ html.js .skill-group:not(.is-in) .ring-fill { stroke-dashoffset: 100; }
 @media (max-width: 991.98px) {
     .sk-grid { grid-template-columns: minmax(0, 1fr); }
     .tile.sk-card { padding: 1.75rem; }
+}
+
+// ---------- Portfolio: filter tabs + even 3-column grid + viewer ----------
+.work-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2.25rem;
+
+    button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-height: 44px;
+        padding: 0.5rem 1.1rem;
+        border: 1px solid var(--bs-border-color-translucent);
+        border-radius: 999px;
+        background: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+        span { font-size: 0.78rem; opacity: 0.6; font-variant-numeric: tabular-nums; }
+        &:hover { border-color: var(--bs-primary); }
+        &.is-active { background: var(--bs-primary); border-color: var(--bs-primary); color: #fff; }
+        &:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+    }
+}
+
+.proj-row.work-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    margin-top: 2rem;
+}
+
+.work-card {
+    &[hidden] { display: none !important; }
+
+    .work-open {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: zoom-in;
+        text-align: inherit;
+    }
+    &[data-type="video"] .work-open { cursor: pointer; }
+    &[data-type="project"] .work-open { cursor: pointer; }
+
+    .proj-visual {
+        position: relative;
+        height: auto !important;
+        min-height: 0 !important;
+        aspect-ratio: 3 / 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .work-placeholder { font-size: 3.5rem; color: rgba(255, 255, 255, 0.55); }
+    .proj-body { display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+}
+
+.work-type {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(15, 18, 30, 0.6);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.work-play {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.92);
+    color: #111;
+    font-size: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s var(--ease-out, ease);
+}
+@media (hover: hover) and (pointer: fine) {
+    .work-card:hover .work-play { transform: scale(1.08); }
+}
+
+.work-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+
+    span {
+        padding: 0.15rem 0.55rem;
+        border-radius: 0.5rem;
+        background: var(--bs-tertiary-bg);
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--bs-secondary-color);
+    }
+}
+
+.work-viewer {
+    width: min(1100px, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: 1.5rem;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    overflow: auto;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45);
+
+    &::backdrop { background: rgba(8, 10, 20, 0.78); backdrop-filter: blur(6px); }
+
+    .work-stage {
+        background: #000;
+        &:empty { display: none; }
+
+        img { display: block; width: 100%; max-height: 72dvh; object-fit: contain; }
+        iframe, video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
+    }
+
+    .work-caption { padding: 1.25rem 4.5rem 1.5rem 1.5rem; text-align: left; }
+}
+
+.work-close {
+    position: absolute;
+    bottom: 1.1rem;
+    right: 0.75rem;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(15, 18, 30, 0.65);
+    color: #fff;
+    font-size: 1.25rem;
+    display: grid;
+    place-items: center;
+}
+
+@media (max-width: 991.98px) {
+    .proj-row.work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 575.98px) {
+    .proj-row.work-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+// Portfolio tabs: segmented control
+.work-filter {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 0.35rem;
+    gap: 0.25rem;
+    border-radius: 999px;
+    background: rgba(var(--bs-body-bg-rgb), 0.7);
+    border: 1px solid var(--bs-border-color-translucent);
+    backdrop-filter: blur(10px);
+
+    button { border-color: transparent; background: transparent; }
+    button:hover { border-color: transparent; background: var(--bs-tertiary-bg); }
+    button.is-active, button.is-active:hover { background: var(--bs-primary); color: #fff; box-shadow: 0 6px 16px -6px rgba(var(--bs-primary-rgb), 0.6); }
+}
+
+.work-empty {
+    margin: 2.5rem auto 0;
+    padding: 3rem 1rem;
+    max-width: 520px;
+    text-align: center;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: 1.5rem;
+    color: var(--bs-secondary-color);
+
+    i { display: block; font-size: 2rem; margin-bottom: 0.5rem; }
+}
+
+@media (max-width: 575.98px) {
+    .work-filter { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; scrollbar-width: none; }
+    .work-filter button { flex: none; padding-inline: 0.85rem; font-size: 0.875rem; }
+}
+
+// Portfolio tabs: sliding pill
+.work-filter.has-pill {
+    position: relative;
+
+    button { position: relative; z-index: 1; transition: color 0.3s ease, background 0.2s ease; }
+    button.is-active, button.is-active:hover { background: transparent; box-shadow: none; }
+}
+
+.work-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    border-radius: 999px;
+    background: var(--bs-primary);
+    box-shadow: 0 6px 16px -6px rgba(var(--bs-primary-rgb), 0.6);
+    pointer-events: none;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .work-pill { transition: none; }
+}
+
+// Portfolio tabs on phones: three equal segments that always fit, icon above label
+@media (max-width: 575.98px) {
+    .work-filter,
+    .work-filter.has-pill {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+        overflow: visible;
+        gap: 0.2rem;
+        padding: 0.3rem;
+        border-radius: 1.25rem;
+
+        button {
+            flex-direction: column;
+            gap: 0.15rem;
+            min-height: 56px;
+            padding: 0.45rem 0.25rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            line-height: 1.15;
+            text-align: center;
+            white-space: normal;
+
+            i { font-size: 1.15rem; }
+            span { display: none; }
+        }
+    }
+
+    .work-pill { border-radius: 1rem; }
+}
+
+// Portfolio "View more"
+.work-more {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+
+    button { border: 0; }
+    .work-more-count { font-size: 0.8rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
+    button:hover .island-btn-icon { transform: translateY(2px); }
+    &[hidden] { display: none; }
+}
+
+// ---------- Sunset orange: secondary accent (~10% of the colour) ----------
+// Blue stays the main colour (60/30); orange marks a few highlight moments only.
+:root {
+    --sunset: #ff6b35;
+    --sunset-soft: rgba(255, 107, 53, 0.12);
+    --sunset-text: #d9480f; // AA contrast on light backgrounds
+}
+[data-bs-theme="dark"] {
+    --sunset: #ff8a5b;
+    --sunset-soft: rgba(255, 138, 91, 0.16);
+    --sunset-text: #ff9d76;
+}
+
+// Hero: blue → sunset gradient on the accent line
+.hero .text-accent {
+    background: linear-gradient(100deg, var(--accent) 15%, #8a5cd0 55%, var(--sunset) 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+// Warm glow in the hero corner
+.hero .glow.g2 { background: var(--sunset); opacity: 0.16; }
+
+// Section eyebrow dots
+.eyebrow-pill::before { background: var(--sunset); }
+
+// Primary link arrows warm up on hover
+@media (hover: hover) and (pointer: fine) {
+    .link-arrow:hover { color: var(--sunset-text); }
+}
+
+// Portfolio highlights
+.work-play { color: var(--sunset); }
+.work-more .work-more-count { color: #ffd2bf; opacity: 1; }
+.work-tech span:first-child { background: var(--sunset-soft); color: var(--sunset-text); }
+
+// Current role marker in Experience
+.xp-current, .role-badge-now { color: var(--sunset-text); }
+
+// Text selection
+::selection { background: var(--sunset); color: #fff; }
+
+@media (prefers-contrast: more) {
+    .hero .text-accent { background: none; color: var(--accent); }
+}
+
+// ---------- Sunset orange across the whole site (~10%) ----------
+// Rule: blue = structure & actions, orange = small "signature" details in every section.
+
+// Navbar: brand dot + active section
+.island-brand span { color: var(--sunset); }
+.pf-navbar .nav-link.active,
+.pf-navbar .nav-link[aria-current] { box-shadow: inset 0 -2px 0 var(--sunset); }
+
+// About: thin orange rule above each fact
+.about-fact { border-top: 2px solid var(--sunset) !important; }
+.about-fact dt::after { content: ""; }
+
+// Services: numbers + icons
+.svc-num { color: var(--sunset-text) !important; }
+.svc-glyph i { color: var(--sunset); }
+
+// Experience: company mark + "current" badge
+.xp-mark { background: var(--sunset-soft) !important; color: var(--sunset-text) !important; }
+.xp-badge { background: var(--sunset-soft) !important; color: var(--sunset-text) !important; }
+
+// Skills: group icons + the top-level ("expert") meter segments
+.sk-icon { background: var(--sunset-soft) !important; color: var(--sunset-text) !important; }
+.sk-meter i.on:last-child { background: var(--sunset) !important; }
+
+// Portfolio: category badge
+.work-card .badge.bg-light-primary { background: var(--sunset-soft) !important; color: var(--sunset-text) !important; }
+
+// Education, certificates, badges: label icons
+.tile-label i { color: var(--sunset); }
+
+// Contact (blue banner): icon chip on the buttons
+.banner-blue .island-btn-icon { background: var(--sunset) !important; color: #fff !important; }
+
+// Focus ring for keyboard users
+:focus-visible { outline-color: var(--sunset); }
+
+// Scroll hint arrow
+.scroll-hint i { color: var(--sunset); }
+
+// On blue backgrounds use a light peach so orange stays readable
+.services-split, .banner-blue {
+    .svc-num { color: #ffc2a6 !important; }
+    .svc-glyph i { color: #ffb08f; }
+}
+
+// ---------- Single cards: no outer bezel/shell ----------
+.tile,
+.proj-card {
+    padding: 1.75rem;
+    border-radius: 1.5rem;
+    background: var(--core);
+    box-shadow: 0 0 0 1px var(--shell-ring), 0 1px 2px rgba(30, 40, 90, 0.04), 0 18px 40px -28px rgba(30, 40, 90, 0.18);
+
+    &::before { inset: 0; border-radius: inherit; }
+}
+[data-bs-theme="dark"] .tile,
+[data-bs-theme="dark"] .proj-card { box-shadow: 0 0 0 1px var(--shell-ring), 0 18px 40px -28px rgba(0, 0, 0, 0.6); }
+
+.tile.t-accent { box-shadow: 0 18px 40px -24px rgba(var(--accent-rgb), 0.55); }
+.tile.sk-card { padding: 2rem; }
+
+// Portfolio cards: image flush to the card edge
+.proj-card {
+    padding: 0;
+    overflow: hidden;
+
+    .proj-visual { border-radius: 0 !important; }
+    .proj-body { margin-top: 0; border-radius: 0 !important; box-shadow: none; padding: 1.5rem; background: transparent; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .tile:hover, .proj-card:hover { box-shadow: 0 0 0 1px var(--shell-ring), 0 28px 56px -28px rgba(30, 40, 90, 0.28); }
+}
+
+@media (max-width: 575.98px) {
+    .tile { padding: 1.4rem; }
+}
+
+// ---------- Highlight tile (e.g. GPA 3.72) ----------
+// Deep blue in both themes so white text stays readable, with a warm sunset glow.
+.tile.t-accent {
+    color: #fff;
+    background: #2f4aa8;
+    box-shadow: 0 18px 40px -24px rgba(47, 74, 168, 0.7);
+
+    &::before {
+        background:
+            radial-gradient(90% 120% at 100% 100%, rgba(255, 107, 53, 0.45), transparent 60%),
+            radial-gradient(80% 90% at 0% 0%, rgba(255, 255, 255, 0.14), transparent 60%),
+            linear-gradient(135deg, #3953b8, #2a3f94);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .tile-label { color: rgba(255, 255, 255, 0.85); }
+    .tile-label i { color: #ffc2a6; }
+    .tile-big { color: #fff; letter-spacing: -0.03em; }
+    p, .small, .text-body-secondary { color: rgba(255, 255, 255, 0.82) !important; }
+}
+
+[data-bs-theme="dark"] .tile.t-accent {
+    background: #22357d;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 18px 40px -24px rgba(0, 0, 0, 0.7);
+
+    &::before {
+        background:
+            radial-gradient(90% 120% at 100% 100%, rgba(255, 138, 91, 0.38), transparent 60%),
+            radial-gradient(80% 90% at 0% 0%, rgba(255, 255, 255, 0.08), transparent 60%),
+            linear-gradient(135deg, #2c429a, #1c2c6b);
+    }
+}
+
+// ---------- One button style everywhere: pill + solid sunset arrow chip ----------
+.island-btn .island-btn-icon {
+    background: var(--sunset) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px -4px rgba(255, 107, 53, 0.6);
+    transition: transform 0.5s var(--ease-out), background-color 0.3s ease, box-shadow 0.3s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+    .island-btn:hover .island-btn-icon { background: #ff5a1f !important; box-shadow: 0 6px 16px -4px rgba(255, 107, 53, 0.75); }
+}
+
+// Primary pill on light backgrounds: brand blue body
+.island-btn-primary { background: var(--wallet-blue, #435ebe) !important; color: #fff !important; }
+[data-bs-theme="dark"] .island-btn-primary { background: #3953b8 !important; }
+
+// Ghost pill: thin light outline (like the contact email button)
+.island-btn-ghost { background: transparent !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45) !important; color: #fff !important; }
+.island-btn-ghost:hover { background: rgba(255, 255, 255, 0.08) !important; }
+.bento-section .island-btn-ghost, .about-section .island-btn-ghost { box-shadow: inset 0 0 0 1px var(--bs-border-color) !important; color: var(--bs-body-color) !important; }
+
+// ---------- Publications: editorial list ----------
+.pub-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+
+.pub-item {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    align-items: start;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.pub-year {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--sunset-text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.pub-type {
+    display: inline-block;
+    margin-bottom: 0.4rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--sunset-soft);
+    color: var(--sunset-text);
+}
+
+.pub-title { font-size: 1.2rem; font-weight: 700; line-height: 1.35; margin: 0 0 0.35rem; max-width: 60ch; }
+.pub-authors { margin: 0 0 0.25rem; color: var(--bs-secondary-color); font-size: 0.95rem; }
+.pub-venue { margin: 0; color: var(--bs-secondary-color); font-style: italic; font-size: 0.95rem; i { color: var(--sunset); font-style: normal; } }
+.pub-abstract { margin: 0.75rem 0 0; max-width: 65ch; color: var(--bs-body-color); opacity: 0.85; }
+.pub-link { align-self: center; }
+
+@media (max-width: 767.98px) {
+    .pub-item { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+    .pub-year { font-size: 1.1rem; }
+    .pub-link { justify-self: start; margin-top: 0.5rem; }
+}
+
+// ---------- Sub-headings inside a section (Education / Certifications) ----------
+.sub-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.25rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+
+    i { color: var(--sunset); font-size: 1.3rem; }
+    span {
+        padding: 0.1rem 0.55rem;
+        border-radius: 999px;
+        background: var(--shell);
+        box-shadow: 0 0 0 1px var(--shell-ring);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--bs-secondary-color);
+        font-variant-numeric: tabular-nums;
+    }
+    &::after { content: ""; flex: 1; height: 1px; background: var(--bs-border-color-translucent); margin-left: 0.5rem; }
+}
+.bento + .sub-head, .bento.mb-5 + .sub-head { margin-top: 3.5rem; }
+
+// ---------- Certifications & badges: one even grid ----------
+.cred-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.tile.cred-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 1.5rem;
+}
+
+.cred-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1.1rem; }
+
+.cred-mark {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--sunset-soft);
+    color: var(--sunset-text);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+.cred-kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(var(--bs-primary-rgb), 0.08);
+    color: var(--bs-primary);
+
+    &.is-badge { background: var(--sunset-soft); color: var(--sunset-text); }
+}
+
+.cred-title { font-size: 1.02rem; font-weight: 700; line-height: 1.35; margin: 0 0 0.3rem; }
+.cred-issuer { font-size: 0.875rem; color: var(--bs-secondary-color); }
+
+.cred-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+
+    i { color: var(--sunset); }
+}
+.cred-card .cred-issuer { margin-bottom: 0.25rem; }
+.cred-id { font-variant-numeric: tabular-nums; opacity: 0.85; }
+
+// ---------- Publications: sticky heading left, cards right ----------
+.pub-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+    gap: 3.5rem;
+    align-items: start;
+}
+
+.pub-intro {
+    position: sticky;
+    top: 7rem;
+    text-align: left;
+
+    .display-lg { margin-bottom: 1rem; }
+}
+.pub-count { color: var(--bs-secondary-color); margin: 0; strong { color: var(--sunset-text); font-size: 1.25rem; } }
+
+.pub-list { border: 0; display: grid; gap: 1.25rem; }
+
+.tile.pub-item {
+    display: block;
+    padding: 1.75rem;
+    border: 0;
+    grid-template-columns: none;
+}
+
+.pub-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+.pub-meta .pub-year { font-size: 0.95rem; font-weight: 700; color: var(--sunset-text); }
+.pub-meta .pub-type { margin: 0; }
+.pub-item .pub-link { margin-top: 1.25rem; }
+
+@media (max-width: 991.98px) {
+    .cred-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pub-split { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+    .pub-intro { position: static; text-align: center; }
+}
+
+@media (max-width: 575.98px) {
+    .cred-grid { grid-template-columns: minmax(0, 1fr); }
+    .tile.pub-item { padding: 1.4rem; }
+    .sub-head::after { display: none; }
+}
+
+// Light pill buttons sitting on white cards need an outline
+.tile .island-btn-light,
+.pub-item .island-btn-light {
+    background: var(--shell) !important;
+    box-shadow: inset 0 0 0 1px var(--shell-ring) !important;
+    color: var(--bs-body-color) !important;
+}
+.cred-mark { font-size: 0.8rem; }
+
+// ---------- Education v2: equal degree cards + highlight row ----------
+.edu-bento { grid-auto-rows: auto; }
+.edu-card { justify-content: flex-start; }
+
+.tile.hl-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 0;
+    padding: 1.5rem 1.75rem;
+}
+.hl-num {
+    flex: none;
+    font-size: clamp(2.6rem, 4vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.hl-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: var(--sunset-soft);
+    color: var(--sunset-text);
+    font-size: 1.9rem;
+}
+.hl-text { min-width: 0; .tile-label { margin-bottom: 0.3rem; } }
+.hl-title { font-size: 1.1rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.2rem; }
+.t-accent .hl-title { color: #fff; }
+
+// ---------- Certifications & badges v2: compact rows, 2 columns ----------
+.cred-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+
+.tile.cred-card {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.4rem;
+}
+.cred-card .cred-mark { flex: none; width: 48px; height: 48px; border-radius: 14px; }
+.cred-body { min-width: 0; flex: 1; }
+.cred-card .cred-title { font-size: 1rem; margin: 0 0 0.15rem; }
+.cred-card .cred-issuer { margin: 0; font-size: 0.85rem; }
+.cred-card .cred-foot {
+    margin-top: 0.6rem;
+    padding-top: 0;
+    gap: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    > span:not(.cred-kind) + span::before { content: "·"; margin-right: 0.75rem; opacity: 0.5; }
+}
+.cred-card .cred-kind { padding: 0.12rem 0.55rem; font-size: 0.7rem; }
+
+@media (max-width: 991.98px) {
+    .cred-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 575.98px) {
+    .tile.hl-card { padding: 1.25rem; gap: 1rem; }
+    .hl-icon { width: 52px; height: 52px; font-size: 1.5rem; }
+}
+.cred-card .cred-mark { font-size: 0.72rem; letter-spacing: -0.01em; }
+.hl-card:not(.t-accent) .hl-title { color: var(--bs-heading-color, var(--bs-body-color)); }
+
+// ---------- Certifications = sunset orange cards, badges = brand blue cards ----------
+.tile.cred-card.is-cert {
+    &::before {
+        background:
+            radial-gradient(120% 120% at 100% 0%, rgba(255, 255, 255, 0.22), transparent 55%),
+            linear-gradient(135deg, #ff7a45, #f2541b);
+    }
+    box-shadow: 0 14px 30px -18px rgba(242, 84, 27, 0.6);
+}
+
+.tile.cred-card.is-badge {
+    &::before {
+        background:
+            radial-gradient(120% 120% at 100% 0%, rgba(255, 255, 255, 0.16), transparent 55%),
+            linear-gradient(135deg, #4a64c8, #2f4aa8);
+    }
+    box-shadow: 0 14px 30px -18px rgba(47, 74, 168, 0.6);
+}
+
+.tile.cred-card.is-cert,
+.tile.cred-card.is-badge {
+    color: #fff;
+
+    .cred-title { color: #fff; }
+    .cred-issuer, .cred-foot, .cred-id { color: rgba(255, 255, 255, 0.85); }
+    .cred-mark { background: rgba(255, 255, 255, 0.2); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25); }
+    .cred-kind, .cred-kind.is-badge { background: rgba(255, 255, 255, 0.2); color: #fff; }
+    .cred-foot > span:not(.cred-kind) + span::before { opacity: 0.7; }
+    .link-arrow, .link-arrow:hover { color: #fff; }
+}
+
+[data-bs-theme="dark"] {
+    .tile.cred-card.is-cert::before { background: radial-gradient(120% 120% at 100% 0%, rgba(255, 255, 255, 0.12), transparent 55%), linear-gradient(135deg, #e8622d, #c2410c); }
+    .tile.cred-card.is-badge::before { background: radial-gradient(120% 120% at 100% 0%, rgba(255, 255, 255, 0.1), transparent 55%), linear-gradient(135deg, #2c429a, #1c2c6b); }
+}
+
+// ---------- Credentials v3 ----------
+// Badges: plain theme card (white in light mode, dark in dark mode)
+.tile.cred-card.is-badge {
+    color: inherit;
+    box-shadow: 0 0 0 1px var(--shell-ring), 0 1px 2px rgba(30, 40, 90, 0.04), 0 18px 40px -28px rgba(30, 40, 90, 0.18);
+
+    &::before { background: var(--core); }
+
+    .cred-title { color: var(--bs-heading-color, var(--bs-body-color)); }
+    .cred-issuer, .cred-foot, .cred-id { color: var(--bs-secondary-color); }
+    .cred-mark { background: rgba(var(--bs-primary-rgb), 0.1); color: var(--bs-primary); box-shadow: none; }
+    .cred-kind, .cred-kind.is-badge { background: rgba(var(--bs-primary-rgb), 0.1); color: var(--bs-primary); }
+    .link-arrow { color: var(--bs-primary); }
+}
+[data-bs-theme="dark"] .tile.cred-card.is-badge {
+    box-shadow: 0 0 0 1px var(--shell-ring), 0 18px 40px -28px rgba(0, 0, 0, 0.6);
+    &::before { background: var(--core); }
+    .cred-mark, .cred-kind, .cred-kind.is-badge { background: rgba(127, 149, 230, 0.16); color: #a9b8f2; }
+}
+
+// Certifications: warm sunset card — soft peach surface, orange details, readable dark text
+.tile.cred-card.is-cert {
+    color: inherit;
+    box-shadow: 0 0 0 1px rgba(255, 107, 53, 0.28), 0 18px 40px -26px rgba(242, 84, 27, 0.35);
+
+    &::before {
+        background:
+            radial-gradient(120% 140% at 100% 0%, rgba(255, 107, 53, 0.16), transparent 60%),
+            linear-gradient(135deg, #fff7f2, #ffeadf);
+    }
+
+    .cred-title { color: #3b1d0f; }
+    .cred-issuer, .cred-foot, .cred-id { color: #8a4a2c; }
+    .cred-mark { background: linear-gradient(135deg, #ff7a45, #f2541b); color: #fff; box-shadow: 0 6px 14px -6px rgba(242, 84, 27, 0.7); }
+    .cred-kind { background: rgba(255, 107, 53, 0.14); color: #c2410c; }
+    .link-arrow { color: #c2410c; }
+}
+[data-bs-theme="dark"] .tile.cred-card.is-cert {
+    box-shadow: 0 0 0 1px rgba(255, 138, 91, 0.28), 0 18px 40px -26px rgba(0, 0, 0, 0.7);
+
+    &::before {
+        background:
+            radial-gradient(120% 140% at 100% 0%, rgba(255, 138, 91, 0.22), transparent 60%),
+            linear-gradient(135deg, #2a1810, #1d120d);
+    }
+
+    .cred-title { color: #ffe8dc; }
+    .cred-issuer, .cred-foot, .cred-id { color: #e0a98e; }
+    .cred-kind { background: rgba(255, 138, 91, 0.18); color: #ffb08f; }
+    .link-arrow { color: #ffb08f; }
+}
+
+// ---------- Credentials v4: compact upright cards, 4 per row ----------
+.cred-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+
+.tile.cred-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 1.4rem;
+    min-height: 200px;
+}
+.cred-card .cred-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.cred-date { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.cred-card .cred-title { font-size: 1rem; line-height: 1.35; margin: 0 0 0.35rem; }
+.cred-card .cred-issuer { font-size: 0.83rem; line-height: 1.45; }
+.cred-card .cred-foot { margin-top: auto; padding-top: 1rem; font-size: 0.78rem; }
+.cred-card .cred-foot > span + span::before { content: none; }
+
+.tile.cred-card.is-cert .cred-date { color: #c2410c; }
+.tile.cred-card.is-badge .cred-date { color: var(--bs-secondary-color); }
+.tile.cred-card.is-badge .cred-date i { color: var(--bs-primary); }
+[data-bs-theme="dark"] .tile.cred-card.is-cert .cred-date { color: #ffb08f; }
+
+@media (max-width: 1199.98px) { .cred-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) {
+    .cred-grid { grid-template-columns: minmax(0, 1fr); }
+    .tile.cred-card { min-height: 0; }
+}
+
+// Credential link: orange arrow chip (same as the buttons); the whole card is clickable
+.cred-card .cred-foot { display: flex; align-items: center; min-height: 40px; }
+.cred-go {
+    margin-left: auto;
+    text-decoration: none;
+
+    .island-btn-icon {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--sunset);
+        color: #fff;
+        font-size: 1rem;
+        box-shadow: 0 6px 14px -6px rgba(255, 107, 53, 0.7);
+        transition: transform 0.4s var(--ease-out), background-color 0.3s ease;
+    }
+
+    // Stretch the click area over the whole card
+    &::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: 1; }
+    &:focus-visible { outline: none; }
+    &:focus-visible .island-btn-icon { outline: 2px solid var(--sunset); outline-offset: 3px; }
+}
+.tile.cred-card.has-link { cursor: pointer; }
+@media (hover: hover) and (pointer: fine) {
+    .tile.cred-card.has-link:hover {
+        transform: translateY(-3px);
+        .cred-go .island-btn-icon { transform: translate(2px, -2px) scale(1.06); background: #ff5a1f; }
+    }
+}
+.tile.cred-card.has-link { position: relative; }
+.tile.cred-card.has-link .cred-foot { position: static; }
+.cred-go { position: static; }
+.cred-go::after { z-index: 3; }
+.cred-go .island-btn-icon { position: relative; z-index: 4; }
+.cred-card .cred-go .island-btn-icon i { color: #fff !important; }
+
+// Badge cards: blue arrow chip (certifications keep orange)
+.tile.cred-card.is-badge .cred-go .island-btn-icon {
+    background: var(--bs-primary) !important;
+    box-shadow: 0 6px 14px -6px rgba(var(--bs-primary-rgb), 0.7);
+}
+@media (hover: hover) and (pointer: fine) {
+    .tile.cred-card.is-badge.has-link:hover .cred-go .island-btn-icon { background: #3650b0 !important; }
+}
+[data-bs-theme="dark"] .tile.cred-card.is-badge .cred-go .island-btn-icon { background: #4a64c8 !important; }
+
+// Issuer logo inside the credential chip
+.cred-card .cred-mark.has-logo,
+.tile.cred-card.is-cert .cred-mark.has-logo,
+.tile.cred-card.is-badge .cred-mark.has-logo {
+    padding: 7px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.08), 0 4px 10px -6px rgba(17, 24, 39, 0.25);
+    overflow: hidden;
+
+    img { display: block; width: 100%; height: 100%; object-fit: contain; }
+}
+
+// Company logo in the Experience mark
+.xp-mark.has-logo {
+    padding: 6px;
+    background: #fff !important;
+    box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.08), 0 4px 10px -6px rgba(17, 24, 39, 0.25);
+    overflow: hidden;
+
+    img { display: block; width: 100%; height: 100%; object-fit: contain; }
+}
+
+// Logo boxes follow the logo's shape: fixed height, width grows for wide logos
+.cred-card .cred-mark.has-logo,
+.tile.cred-card.is-cert .cred-mark.has-logo,
+.tile.cred-card.is-badge .cred-mark.has-logo,
+.xp-mark.has-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 48px;
+    max-width: 132px;
+    height: 48px;
+    padding: 6px 8px;
+
+    img { width: auto; height: 100%; max-width: 100%; object-fit: contain; }
+}
+.xp-mark.has-logo { max-width: 104px; }
+
+// ---------- Footer ----------
+.pf-footer {
+    padding: 4.5rem 0 2rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    background: var(--page);
+    color: var(--bs-secondary-color);
+
+    a { color: inherit; text-decoration: none; transition: color 0.2s ease; }
+    a:hover { color: var(--sunset-text); }
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr) minmax(0, 1fr);
+    gap: 3rem;
+    padding-bottom: 3rem;
+}
+
+.footer-logo {
+    display: inline-block;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--bs-heading-color, var(--bs-body-color)) !important;
+    span { color: var(--sunset); }
+}
+.footer-blurb { margin: 0.4rem 0 0.75rem; font-weight: 600; color: var(--bs-body-color); }
+.footer-note { max-width: 38ch; margin: 0 0 1.5rem; line-height: 1.6; }
+
+.footer-head {
+    margin: 0 0 1rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bs-body-color);
+}
+
+.footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.65rem; }
+.footer-col li { font-size: 0.95rem; }
+.footer-col i { color: var(--sunset); margin-right: 0.4rem; }
+.footer-col li a, .footer-col li span { display: inline-flex; align-items: center; word-break: break-word; }
+
+.footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    font-size: 0.85rem;
+}
+.footer-top-link { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 500; }
+.footer-top-link i { transition: transform 0.3s var(--ease-out); }
+.footer-top-link:hover i { transform: translateY(-3px); }
+
+@media (max-width: 991.98px) {
+    .footer-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 575.98px) {
+    .pf-footer { padding-top: 3.5rem; }
+    .footer-top { grid-template-columns: minmax(0, 1fr); gap: 2.25rem; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; }
+}
+// Leave room for the floating "Ask AI" button at the very bottom
+.pf-footer { padding-bottom: 6.5rem; }
+@media (max-width: 575.98px) { .pf-footer { padding-bottom: 6rem; } }
+
+// ---------- Footer v2: same width as the page content, balanced columns ----------
+.pf-footer > .container {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+}
+
+.footer-top {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem 4rem;
+    align-items: start;
+}
+
+// Explore: two short columns instead of one tall list
+.footer-col.footer-explore ul {
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    column-gap: 2.5rem;
+}
+
+.footer-bottom {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+
+    > :first-child { justify-self: start; }
+    .theme-choice { justify-self: center; }
+    .footer-top-link { justify-self: end; }
+}
+
+@media (max-width: 991.98px) {
+    .footer-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 767.98px) {
+    .footer-bottom { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+    .footer-bottom .theme-choice, .footer-bottom .footer-top-link { justify-self: start; }
+}
+@media (max-width: 575.98px) {
+    .footer-top { grid-template-columns: minmax(0, 1fr); }
+}
+
+// ---------- Skills: blue cards; the section fills with the same blue on scroll ----------
+.skills-blue {
+    --sk-blue: #3651b4;
+    transition: color 0.4s ease;
+
+    .section-head .display-lg,
+    .section-head .eyebrow-pill { transition: color 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease; }
+
+    // Once the section is blue, the heading flips to white
+    &.is-filled {
+        .section-head .display-lg { color: #fff; }
+        .section-head .eyebrow-pill { color: rgba(255, 255, 255, 0.85); background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18); }
+    }
+}
+[data-bs-theme="dark"] .skills-blue { --sk-blue: #1b2a66; }
+
+.skills-blue .tile.sk-card {
+    color: #fff;
+    background: transparent;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, calc(0.06 + var(--scroll-p, 0) * 0.14)),
+        0 24px 50px -28px rgba(20, 30, 80, 0.55);
+    transition: box-shadow 0.4s ease, transform 0.45s var(--ease-out);
+
+    &::before {
+        background:
+            radial-gradient(120% 80% at 100% 0%, rgba(255, 255, 255, 0.14), transparent 55%),
+            radial-gradient(90% 70% at 0% 100%, rgba(255, 107, 53, 0.16), transparent 60%),
+            linear-gradient(160deg, #4562cc, var(--sk-blue));
+    }
+
+    .sk-icon { background: rgba(255, 255, 255, 0.14) !important; color: #fff !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
+    .sk-title { color: #fff; }
+    .sk-desc { color: rgba(255, 255, 255, 0.78); }
+    .sk-item { border-color: rgba(255, 255, 255, 0.14) !important; }
+    .sk-name { color: #fff; }
+    .sk-level-text { color: rgba(255, 255, 255, 0.7); }
+    .sk-meter i { background: rgba(255, 255, 255, 0.22) !important; }
+    .sk-meter i.on { background: #fff !important; }
+    .sk-meter i.on:last-child { background: #ffb08f !important; }
+}
+[data-bs-theme="dark"] .skills-blue .tile.sk-card::before {
+    background:
+        radial-gradient(120% 80% at 100% 0%, rgba(255, 255, 255, 0.08), transparent 55%),
+        radial-gradient(90% 70% at 0% 100%, rgba(255, 138, 91, 0.14), transparent 60%),
+        linear-gradient(160deg, #2a3f94, var(--sk-blue));
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .skills-blue .tile.sk-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28), 0 30px 60px -28px rgba(10, 20, 60, 0.7); }
+}
+.skills-blue.is-filled .section-head .eyebrow-pill { background: transparent !important; box-shadow: none !important; color: #ffc2a6 !important; }
+
+// ---------- Skills v2: one big blue card that grows into the section on scroll ----------
+// Start: default page background + a rounded blue panel. As you scroll in,
+// the section fills with the same blue and the panel's edges dissolve into it.
+.skills-blue {
+    overflow: hidden;
+
+    .sk-panel {
+        --p: var(--scroll-p, 0);
+        position: relative;
+        padding: clamp(2.5rem, 5vw, 4.5rem) clamp(1.25rem, 4vw, 3.5rem);
+        border-radius: calc(2rem * (1 - var(--p)));
+        background:
+            radial-gradient(70% 60% at 100% 0%, rgba(255, 255, 255, calc(0.12 * (1 - var(--p)))), transparent 60%),
+            radial-gradient(60% 50% at 0% 100%, rgba(255, 107, 53, calc(0.16 * (1 - var(--p)))), transparent 60%),
+            var(--sk-blue);
+        box-shadow: 0 40px 80px -40px rgba(20, 30, 80, calc(0.6 * (1 - var(--p))));
+        transform: scale(calc(0.96 + 0.04 * var(--p)));
+        transform-origin: center top;
+        color: #fff;
+    }
+
+    // Heading is always on blue now
+    .section-head .display-lg { color: #fff !important; }
+    .section-head .eyebrow-pill { color: #ffc2a6 !important; background: transparent !important; box-shadow: none !important; }
+}
+
+// Inner group cards: light glass on the blue panel (no longer blue-on-blue)
+.skills-blue .tile.sk-card {
+    background: transparent;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+
+    &::before {
+        background: rgba(255, 255, 255, 0.07) !important;
+    }
+}
+[data-bs-theme="dark"] .skills-blue .tile.sk-card::before { background: rgba(255, 255, 255, 0.05) !important; }
+
+@media (hover: hover) and (pointer: fine) {
+    .skills-blue .tile.sk-card:hover { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3), 0 24px 50px -28px rgba(10, 20, 60, 0.6); }
+}
+
+@media (max-width: 575.98px) {
+    .skills-blue .sk-panel { padding: 2.25rem 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .skills-blue .sk-panel { transform: none; }
+}
+
+// ---------- Skills v3: blue card around the heading only ----------
+.skills-blue .sk-panel {
+    max-width: 880px;
+    margin: 0 auto 3rem;
+    padding: clamp(2.25rem, 4vw, 3.25rem) clamp(1.25rem, 4vw, 3rem);
+    transform: scale(calc(0.97 + 0.03 * var(--p)));
+    transform-origin: center;
+
+    .section-head { margin-bottom: 0 !important; }
+}
+
+// Skill group cards: solid blue cards again (they sit on the light page at first)
+.skills-blue .tile.sk-card {
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, calc(0.08 + var(--scroll-p, 0) * 0.14)),
+        0 24px 50px -28px rgba(20, 30, 80, 0.55);
+
+    &::before {
+        background:
+            radial-gradient(120% 80% at 100% 0%, rgba(255, 255, 255, 0.14), transparent 55%),
+            radial-gradient(90% 70% at 0% 100%, rgba(255, 107, 53, 0.16), transparent 60%),
+            linear-gradient(160deg, #4562cc, var(--sk-blue)) !important;
+    }
+}
+[data-bs-theme="dark"] .skills-blue .tile.sk-card::before {
+    background:
+        radial-gradient(120% 80% at 100% 0%, rgba(255, 255, 255, 0.08), transparent 55%),
+        radial-gradient(90% 70% at 0% 100%, rgba(255, 138, 91, 0.14), transparent 60%),
+        linear-gradient(160deg, #2a3f94, var(--sk-blue)) !important;
+}
+
+// ---------- Skills cards: cleaner colour ----------
+.skills-blue .tile.sk-card {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 0 0 1px rgba(255, 255, 255, 0.14),
+        0 24px 50px -30px rgba(10, 20, 70, 0.6);
+
+    &::before {
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0) 40%),
+            linear-gradient(160deg, #4d6ad8 0%, #3d58c2 100%) !important;
+    }
+
+    .sk-icon { background: rgba(255, 255, 255, 0.16) !important; }
+    .sk-desc { color: rgba(255, 255, 255, 0.82); }
+    .sk-item { border-color: rgba(255, 255, 255, 0.16) !important; }
+    .sk-level-text { color: rgba(255, 255, 255, 0.75); }
+}
+
+[data-bs-theme="dark"] .skills-blue .tile.sk-card {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.10),
+        0 0 0 1px rgba(140, 160, 255, 0.18),
+        0 24px 50px -30px rgba(0, 0, 0, 0.7);
+
+    &::before {
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 40%),
+            linear-gradient(160deg, #2b4199 0%, #23367f 100%) !important;
+    }
+
+    .sk-icon { background: rgba(140, 160, 255, 0.18) !important; color: #dfe5ff !important; }
+    .sk-desc, .sk-level-text { color: rgba(223, 229, 255, 0.72); }
+    .sk-item { border-color: rgba(140, 160, 255, 0.16) !important; }
+    .sk-meter i { background: rgba(223, 229, 255, 0.18) !important; }
+    .sk-meter i.on { background: #dfe5ff !important; }
+    .sk-meter i.on:last-child { background: #ffb08f !important; }
+}
+
+// Dark mode: section blue a touch deeper so the cards sit above it
+[data-bs-theme="dark"] .skills-blue { --sk-blue: #17245a; }
+
+// ---------- Skills cards v4: theme cards that contrast with the blue section ----------
+// White in light mode / dark in dark mode, normal text, blue details, orange top level.
+.skills-blue .tile.sk-card,
+[data-bs-theme="dark"] .skills-blue .tile.sk-card {
+    color: var(--bs-body-color);
+    box-shadow: 0 1px 2px rgba(10, 20, 70, 0.08), 0 30px 60px -30px rgba(10, 20, 70, 0.55);
+
+    &::before {
+        background: var(--core) !important;
+        box-shadow: none;
+    }
+
+    .sk-icon { background: rgba(var(--bs-primary-rgb), 0.1) !important; color: var(--bs-primary) !important; box-shadow: none; }
+    .sk-title { color: var(--bs-heading-color, var(--bs-body-color)); }
+    .sk-desc { color: var(--bs-secondary-color); }
+    .sk-item { border-color: var(--bs-border-color-translucent) !important; }
+    .sk-name { color: var(--bs-body-color); }
+    .sk-level-text { color: var(--bs-secondary-color); }
+    .sk-meter i { background: var(--shell-ring) !important; }
+    .sk-meter i.on { background: var(--bs-primary) !important; }
+    .sk-meter i.on:last-child { background: var(--sunset) !important; }
+}
+
+[data-bs-theme="dark"] .skills-blue .tile.sk-card {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 30px 60px -30px rgba(0, 0, 0, 0.8);
+
+    .sk-icon { background: rgba(127, 149, 230, 0.16) !important; color: #a9b8f2 !important; }
+    .sk-meter i { background: rgba(255, 255, 255, 0.12) !important; }
+    .sk-meter i.on { background: #7f95e6 !important; }
+    .sk-meter i.on:last-child { background: var(--sunset) !important; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .skills-blue .tile.sk-card:hover { transform: translateY(-4px); box-shadow: 0 1px 2px rgba(10, 20, 70, 0.08), 0 36px 70px -30px rgba(10, 20, 70, 0.65); }
+}
+
+// ---------- Skills v5: the heading card grows to fill the whole section ----------
+.skills-blue[data-scroll-fill] {
+    position: relative;
+    background: transparent;
+
+    > .container { position: relative; z-index: 1; }
+
+    .sk-fill {
+        --p: var(--scroll-p, 0);
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(60% 40% at 85% 0%, rgba(255, 255, 255, calc(0.12 * (1 - var(--p)))), transparent 60%),
+            radial-gradient(50% 35% at 10% 100%, rgba(255, 107, 53, calc(0.14 * (1 - var(--p)))), transparent 60%),
+            var(--sk-blue);
+        // Start at the card's rectangle, end at the section edges
+        clip-path: inset(
+            calc(var(--fill-t, 0px) * (1 - var(--p)))
+            calc(var(--fill-r, 0px) * (1 - var(--p)))
+            calc(var(--fill-b, 0px) * (1 - var(--p)))
+            calc(var(--fill-l, 0px) * (1 - var(--p)))
+            round calc(2rem * (1 - var(--p)))
+        );
+        will-change: clip-path;
+    }
+
+    // The panel only reserves the card's space; the growing layer paints it
+    .sk-panel {
+        background: transparent !important;
+        box-shadow: none !important;
+        transform: none !important;
+        border-radius: 2rem;
+    }
+}
+
+// Skill group icons: sunset orange chips
+.skills-blue .tile.sk-card .sk-icon,
+[data-bs-theme="dark"] .skills-blue .tile.sk-card .sk-icon {
+    background: var(--sunset-soft) !important;
+    color: var(--sunset-text) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 107, 53, 0.18) !important;
+}
+
+// Skill cards: orange-tinted header band, theme-coloured list below
+.skills-blue .tile.sk-card {
+    padding: 0 !important;
+    overflow: hidden;
+
+    .sk-head {
+        position: relative;
+        padding: 2rem 2rem 1.5rem;
+        background:
+            radial-gradient(120% 140% at 100% 0%, rgba(255, 107, 53, 0.14), transparent 60%),
+            linear-gradient(135deg, #fff7f2, #ffeadf);
+        border-bottom: 1px solid rgba(255, 107, 53, 0.18);
+
+        .sk-title { color: #3b1d0f; }
+        .sk-desc { color: #8a4a2c; margin-bottom: 0; }
+        .sk-icon { background: linear-gradient(135deg, #ff7a45, #f2541b) !important; color: #fff !important; box-shadow: 0 6px 14px -6px rgba(242, 84, 27, 0.7) !important; }
+    }
+
+    .sk-list { padding: 0.5rem 2rem 1.75rem; margin: 0; }
+    .sk-list .sk-item:first-child { border-top: 0 !important; }
+}
+
+[data-bs-theme="dark"] .skills-blue .tile.sk-card .sk-head {
+    background:
+        radial-gradient(120% 140% at 100% 0%, rgba(255, 138, 91, 0.22), transparent 60%),
+        linear-gradient(135deg, #2a1810, #1d120d);
+    border-bottom-color: rgba(255, 138, 91, 0.22);
+
+    .sk-title { color: #ffe8dc; }
+    .sk-desc { color: #e0a98e; }
+}
+
+@media (max-width: 575.98px) {
+    .skills-blue .tile.sk-card .sk-head { padding: 1.5rem 1.4rem 1.25rem; }
+    .skills-blue .tile.sk-card .sk-list { padding: 0.25rem 1.4rem 1.4rem; }
+}
+
+// Equal-height orange bands across the row (subgrid shares the header row height)
+@supports (grid-template-rows: subgrid) {
+    .skills-blue .sk-grid { grid-auto-rows: auto; }
+    .skills-blue .tile.sk-card {
+        display: grid !important;
+        grid-row: span 2;
+        grid-template-rows: subgrid;
+        gap: 0;
+        align-content: start;
+    }
+}
+@supports (grid-template-rows: subgrid) {
+    .skills-blue .tile.sk-card { grid-template-columns: minmax(0, 1fr); }
+    .skills-blue .tile.sk-card > * { min-width: 0; width: 100%; }
+}
+
+// Skill group icon in the top-right corner of the orange band
+.skills-blue .tile.sk-card .sk-head {
+    padding-right: calc(2rem + 52px + 1rem);
+
+    .sk-icon {
+        position: absolute;
+        top: 1.75rem;
+        right: 1.75rem;
+        margin: 0 !important;
+    }
+    .sk-title { margin-top: 0; }
+}
+@media (max-width: 575.98px) {
+    .skills-blue .tile.sk-card .sk-head { padding-right: calc(1.4rem + 48px + 0.75rem); }
+    .skills-blue .tile.sk-card .sk-head .sk-icon { top: 1.4rem; right: 1.4rem; }
+}
+
+// ---------- Experience v2: warm company panel + scroll-drawn timeline ----------
+.tile.xp-company {
+    padding: 0 !important;
+    gap: 0 !important;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+    align-items: stretch;
+}
+
+// Left panel: logo, company, dates (sticks while you read long roles)
+.xp-company > .xp-head {
+    align-self: stretch !important;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2.25rem 2rem;
+    background:
+        radial-gradient(120% 80% at 0% 0%, rgba(255, 107, 53, 0.14), transparent 60%),
+        linear-gradient(160deg, #fff7f2, #ffeadf);
+    border-right: 1px solid rgba(255, 107, 53, 0.16);
+
+    > * { position: sticky; top: 6.5rem; }
+    > .xp-mark { top: 6.5rem; }
+    > div { top: calc(6.5rem + 64px); }
+
+    .xp-org { color: #3b1d0f; }
+    .xp-legal, .xp-span { color: #8a4a2c; }
+}
+.xp-company > .xp-head .xp-mark:not(.has-logo) {
+    background: linear-gradient(135deg, #ff7a45, #f2541b) !important;
+    color: #fff !important;
+    box-shadow: 0 6px 14px -6px rgba(242, 84, 27, 0.7) !important;
+}
+
+[data-bs-theme="dark"] .xp-company > .xp-head {
+    background:
+        radial-gradient(120% 80% at 0% 0%, rgba(255, 138, 91, 0.2), transparent 60%),
+        linear-gradient(160deg, #2a1810, #1d120d);
+    border-right-color: rgba(255, 138, 91, 0.2);
+
+    .xp-org { color: #ffe8dc; }
+    .xp-legal, .xp-span { color: #e0a98e; }
+}
+
+// Current employer: brand blue panel
+.xp-company.is-current > .xp-head,
+[data-bs-theme="dark"] .xp-company.is-current > .xp-head {
+    background:
+        radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.16), transparent 60%),
+        radial-gradient(90% 60% at 100% 100%, rgba(255, 107, 53, 0.22), transparent 60%),
+        linear-gradient(160deg, #4562cc, #2f4aa8);
+    border-right: 0;
+
+    .xp-org { color: #fff; }
+    .xp-legal, .xp-span { color: rgba(255, 255, 255, 0.82); }
+    .xp-mark:not(.has-logo) { background: rgba(255, 255, 255, 0.18) !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important; }
+}
+
+.xp-company > .xp-roles { padding: 2.25rem 2.5rem 2.25rem calc(2.5rem + 1.75rem); }
+
+// Timeline: track + fill that grows with scroll
+.xp-roles.is-path {
+    &::before {
+        left: calc(2.5rem + 4px);
+        top: calc(2.25rem + 0.55rem);
+        bottom: 2.75rem;
+        width: 2px;
+        border-radius: 2px;
+        background: var(--shell-ring);
+    }
+    &::after {
+        content: "";
+        position: absolute;
+        left: calc(2.5rem + 4px);
+        top: calc(2.25rem + 0.55rem);
+        width: 2px;
+        border-radius: 2px;
+        height: calc((100% - 2.25rem - 0.55rem - 2.75rem) * var(--xp-p, 0));
+        background: linear-gradient(180deg, var(--bs-primary), var(--sunset));
+        box-shadow: 0 0 10px rgba(255, 107, 53, 0.45);
+        transition: height 0.15s linear;
+    }
+    .xp-role::before {
+        left: calc(-1.75rem - 1px);
+        width: 12px;
+        height: 12px;
+        top: 0.45rem;
+        z-index: 1;
+        background: var(--core);
+        box-shadow: inset 0 0 0 2px var(--shell-ring);
+        transition: background-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s var(--ease-out);
+    }
+    .xp-role.is-lit::before {
+        background: var(--sunset);
+        box-shadow: 0 0 0 4px var(--sunset-soft), 0 0 14px rgba(255, 107, 53, 0.55);
+        transform: scale(1.1);
+    }
+}
+
+// Role titles warm up once reached
+.xp-role .xp-title { transition: color 0.4s ease; }
+.xp-role.is-lit .xp-title { color: var(--bs-heading-color, var(--bs-body-color)); }
+
+@media (max-width: 991.98px) {
+    .tile.xp-company { grid-template-columns: minmax(0, 1fr); }
+    .xp-company > .xp-head {
+        flex-direction: row;
+        align-items: center;
+        padding: 1.5rem 1.75rem;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 107, 53, 0.16);
+        > *, > div, > .xp-mark { position: static; }
+    }
+    .xp-company > .xp-roles { padding: 1.75rem 1.75rem 1.75rem calc(1.75rem + 1.75rem); }
+    .xp-roles.is-path::before, .xp-roles.is-path::after { left: calc(1.75rem + 4px); top: calc(1.75rem + 0.55rem); }
+    .xp-roles.is-path::after { height: calc((100% - 1.75rem - 0.55rem - 2.75rem) * var(--xp-p, 0)); }
+}
+@media (max-width: 575.98px) {
+    .xp-company > .xp-head { padding: 1.25rem 1.35rem; }
+    .xp-company > .xp-roles { padding: 1.5rem 1.35rem 1.5rem calc(1.35rem + 1.6rem); }
+    .xp-roles.is-path::before, .xp-roles.is-path::after { left: calc(1.35rem + 4px); top: calc(1.5rem + 0.55rem); }
+    .xp-roles.is-path::after { height: calc((100% - 1.5rem - 0.55rem - 2.75rem) * var(--xp-p, 0)); }
+    .xp-roles.is-path .xp-role::before { left: calc(-1.6rem - 1px); }
+}
+.tile.xp-company { overflow: clip; }
+
+// Logo + name stick together as one block
+.xp-company > .xp-head {
+    > *, > .xp-mark, > div { position: static; }
+    > .xp-head-in {
+        position: sticky;
+        top: 6.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+@media (max-width: 991.98px) {
+    .xp-company > .xp-head > .xp-head-in { position: static; flex-direction: row; align-items: center; }
+}
+
+// ---------- Services spotlight ----------
+.svc-item {
+    position: relative;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin: 0 -1rem;
+    border-radius: 1.25rem;
+    transition: opacity 0.5s var(--ease-out), background-color 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+
+    .svc-num { transition: color 0.4s ease, transform 0.5s var(--ease-out); transform-origin: left top; }
+    .svc-glyph, .svc-glyph i { transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease, transform 0.5s var(--ease-out); }
+    .svc-text h3 { transition: color 0.4s ease; }
+}
+
+// Others dim while one is active
+.svc-list.has-active .svc-item:not(.is-active) { opacity: 0.5; }
+
+.svc-item.is-active {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    border-bottom-color: transparent;
+    transform: translateX(6px);
+
+    .svc-num { color: #ffc2a6 !important; transform: scale(1.35); font-weight: 700; }
+    .svc-glyph {
+        background: linear-gradient(135deg, #ff7a45, #f2541b) !important;
+        box-shadow: 0 8px 18px -8px rgba(242, 84, 27, 0.8);
+        transform: rotate(-6deg) scale(1.06);
+        i { color: #fff !important; }
+    }
+}
+
+// Counter + bar in the sticky intro
+.svc-progress {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-top: 2.5rem;
+    max-width: 22rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+
+    .svc-count { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; strong { color: #ffc2a6; font-size: 1.5rem; font-weight: 700; } }
+    .svc-bar { height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.2); overflow: hidden;
+        i { display: block; height: 100%; background: linear-gradient(90deg, #ffc2a6, var(--sunset)); transform: scaleX(0.1667); transform-origin: left; transition: transform 0.5s var(--ease-out); }
+    }
+    .svc-current { grid-column: 1 / -1; font-weight: 600; color: #fff; min-height: 1.4em; }
+}
+
+@media (max-width: 991.98px) {
+    .svc-progress { display: none; }
+    .svc-item.is-active { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .svc-item, .svc-item * { transition: none !important; }
+    .svc-item.is-active { transform: none; .svc-num, .svc-glyph { transform: none; } }
+}
+.svc-item { border-radius: 0; }
+.svc-item.is-active { border-radius: 1.25rem; }
+.svc-list.has-active .svc-item:not(.is-active) > * { opacity: 0.5; }
+.svc-item > * { transition: opacity 0.5s var(--ease-out); }
+// Spotlight eases in once the panel is fully blue
+.svc-item.is-active { transition-duration: 0.6s; }
+
+// ---------- Services v3: one blue card holding everything, grows to full width ----------
+// The panel always contains all content (no more half-blue list mid-scroll).
+.services-split {
+    --svc-inset: clamp(0.75rem, 2.2vw, 1.75rem);
+
+    .svc-fill {
+        background:
+            radial-gradient(60% 50% at 100% 0%, rgba(255, 255, 255, calc(0.12 * (1 - var(--p)))), transparent 60%),
+            radial-gradient(50% 40% at 0% 100%, rgba(255, 107, 53, calc(0.16 * (1 - var(--p)))), transparent 60%),
+            var(--wallet-blue);
+        clip-path: inset(
+            calc((1 - var(--p)) * var(--svc-inset))
+            calc((1 - var(--p)) * var(--svc-inset))
+            calc((1 - var(--p)) * var(--svc-inset))
+            calc((1 - var(--p)) * var(--svc-inset))
+            round calc((1 - var(--p)) * 2.5rem)
+        ) !important;
+        box-shadow: none;
+    }
+
+    // White-on-blue from the start (no colour blending while it grows)
+    .svc-list { border-top-color: rgba(255, 255, 255, 0.28) !important; }
+    .svc-item { border-bottom-color: rgba(255, 255, 255, 0.22) !important; }
+    .svc-num { color: rgba(255, 255, 255, 0.6) !important; }
+    .svc-text h3 { color: #fff !important; }
+    .svc-text p { color: rgba(255, 255, 255, 0.82) !important; }
+    .svc-glyph { background: rgba(255, 255, 255, 0.14) !important; color: #ffc2a6 !important; }
+    .eyebrow-pill { color: #ffc2a6 !important; background: transparent !important; box-shadow: none !important; }
+
+    // Content gently settles as the card opens up
+    > .container {
+        transform: scale(calc(0.97 + 0.03 * var(--p)));
+        transform-origin: center top;
+    }
+}
+.services-split .svc-item.is-active .svc-num { color: #ffc2a6 !important; }
+
+@media (max-width: 991.98px) {
+    .services-split .svc-fill {
+        clip-path: inset(
+            calc((1 - var(--p)) * 0.6rem)
+            calc((1 - var(--p)) * 0.6rem)
+            calc((1 - var(--p)) * 0.6rem)
+            calc((1 - var(--p)) * 0.6rem)
+            round calc((1 - var(--p)) * 1.75rem)
+        ) !important;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .services-split > .container { transform: none; }
+}
+
+// ---------- About v2: stronger contrast, brand accents, drawn fact lines ----------
+.about-section {
+    h2 { color: var(--bs-heading-color, #25396f) !important; }
+    .about-lead { color: var(--bs-heading-color, #25396f) !important; opacity: 0.88; }
+    .about-body p { color: var(--bs-secondary-color) !important; }
+    .about-body p em {
+        display: block;
+        padding-left: 1rem;
+        border-left: 3px solid var(--sunset);
+        font-style: italic;
+        color: var(--bs-heading-color, #25396f);
+        font-weight: 500;
+    }
+    .eyebrow-pill { color: var(--bs-primary) !important; }
+}
+
+// "Helmy." in the brand gradient, like the hero line
+.about-name {
+    background: linear-gradient(100deg, var(--accent) 10%, #8a5cd0 55%, var(--sunset) 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+// Facts: big heading-colour values, orange line draws in when they appear
+.about-facts {
+    .about-fact {
+        position: relative;
+        border-top: 2px solid var(--shell-ring) !important;
+        &::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--sunset), #ffb08f);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 1.1s var(--ease-out);
+        }
+    }
+    .about-fact:nth-child(2)::before { transition-delay: 0.15s; }
+    .about-fact:nth-child(3)::before { transition-delay: 0.3s; }
+    &.in-view .about-fact::before { transform: scaleX(1); }
+
+    dt { color: var(--bs-heading-color, #25396f) !important; }
+    dd { color: var(--bs-secondary-color) !important; }
+    .about-plus { color: var(--sunset); margin-left: 0.05em; }
+}
+
+[data-bs-theme="dark"] .about-section {
+    h2, .about-lead, .about-body p em, .about-facts dt { color: #e8ecf8 !important; }
+}
+
+html:not(.js) .about-facts .about-fact::before { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+    .about-facts .about-fact::before { transform: scaleX(1); transition: none; }
+}
+.about-facts dt number-flow { line-height: 1; vertical-align: baseline; --number-flow-mask-height: 0.1em; }
+.about-facts dt { line-height: 1.05; }
+
+// Service icons: white by default, orange only on the active row
+.services-split .svc-item:not(.is-active) .svc-glyph,
+.services-split .svc-item:not(.is-active) .svc-glyph i { color: #fff !important; }
+.services-split .svc-glyph i { color: #fff !important; }
+.services-split .svc-item.is-active .svc-glyph i { color: #fff !important; }
+
+// Footer: contact button + Download CV side by side
+.footer-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; }
+.link-arrow .ph-download-simple { color: var(--sunset); }
+
+// Outline pill (secondary action, e.g. Download CV): same shape + orange chip as the primary
+.island-btn-outline {
+    background: transparent !important;
+    color: var(--bs-heading-color, #25396f) !important;
+    box-shadow: inset 0 0 0 1.5px rgba(var(--bs-primary-rgb), 0.35) !important;
+
+    .island-btn-icon i { transition: transform 0.35s var(--ease-out); }
+}
+@media (hover: hover) and (pointer: fine) {
+    .island-btn-outline:hover {
+        background: rgba(var(--bs-primary-rgb), 0.06) !important;
+        box-shadow: inset 0 0 0 1.5px rgba(var(--bs-primary-rgb), 0.6) !important;
+        .island-btn-icon { transform: none; }
+        .island-btn-icon i { transform: translateY(2px); }
+    }
+}
+[data-bs-theme="dark"] .island-btn-outline {
+    color: #e8ecf8 !important;
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.28) !important;
+}
+[data-bs-theme="dark"] .island-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5) !important;
 }

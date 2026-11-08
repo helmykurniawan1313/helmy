@@ -1,5 +1,5 @@
 @php
-    $sections = ['about', 'services', 'experience', 'skills', 'projects', 'education', 'contact'];
+    $sections = array_values(array_filter(['about', 'services', 'experience', 'skills', 'education', empty($p['publications']) ? null : 'publications', 'projects', 'contact']));
     $base = request()->routeIs('home', 'home.id') ? '' : route($locales[$locale]['route']);
 @endphp
 <header class="island-wrap">

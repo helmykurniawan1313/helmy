@@ -1,0 +1,451 @@
+// ============================================================
+// Admin UI refinements on top of Mazer
+// ============================================================
+
+body.admin {
+    --admin-surface: #fff;
+    --admin-muted-bg: #f4f6fb;
+    --admin-line: #e6eaf2;
+    --admin-ink: #25396f;
+    --admin-sub: #6c7a91;
+    --admin-radius: 14px;
+}
+
+[data-bs-theme="dark"] body.admin {
+    --admin-surface: #1e1e2d;
+    --admin-muted-bg: #26263a;
+    --admin-line: #2f2f45;
+    --admin-ink: #e7e9f5;
+    --admin-sub: #9a9fb8;
+}
+
+body.admin {
+    .text-muted { color: var(--admin-sub) !important; }
+    .card { border-radius: var(--admin-radius); }
+    .min-w-0 { min-width: 0; }
+    .flex-none { flex: none; }
+}
+
+// ---------- Sidebar: compact, grouped ----------
+body.admin #sidebar {
+    .sidebar-header { padding: 1.75rem 1.75rem 0.5rem; }
+
+    .logo {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+
+        a { font-size: 1.5rem; }
+    }
+
+    .logo-sub {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--admin-sub);
+    }
+
+    .sidebar-menu { padding: 0 1.25rem 2rem; }
+    .menu { margin-top: 1rem; }
+
+    .sidebar-title {
+        margin: 1.25rem 0 0.35rem;
+        padding: 0 0.75rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--admin-sub);
+    }
+
+    .sidebar-item { margin-top: 0.15rem; }
+
+    .sidebar-link {
+        padding: 0.6rem 0.85rem;
+        font-size: 0.95rem;
+        border-radius: 10px;
+
+        i { font-size: 1.1rem; }
+    }
+
+    .submenu .submenu-item a {
+        padding: 0.45rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    // Mazer highlights an open group like the current page; tone it down
+    .sidebar-item.has-sub.active > .sidebar-link {
+        background: var(--admin-muted-bg);
+        color: var(--admin-ink);
+        box-shadow: none;
+
+        i, span { color: var(--admin-ink); }
+        &::after { filter: none; }
+    }
+
+    .submenu-item.active > a {
+        color: var(--bs-primary);
+        font-weight: 700;
+    }
+}
+
+// ---------- Top bar ----------
+.admin-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: -0.5rem 0 1.75rem;
+
+    .burger-btn { color: var(--admin-ink); }
+
+    .user-btn {
+        padding: 0.25rem 0.6rem 0.25rem 0.25rem;
+        border-radius: 999px;
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-line);
+        color: var(--admin-ink);
+
+        &:hover { border-color: var(--bs-primary); }
+        .avatar .avatar-content { width: 34px; height: 34px; font-size: 0.85rem; color: #fff; }
+        .small { font-size: 0.75rem; }
+    }
+
+    .dropdown-menu { border-radius: 12px; min-width: 200px; }
+}
+
+.btn-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid var(--admin-line);
+    background: var(--admin-surface);
+    color: var(--admin-sub);
+
+    &:hover, &:focus-visible { color: var(--bs-primary); border-color: var(--bs-primary); background: var(--admin-surface); }
+}
+
+.btn-icon-danger:hover, .btn-icon-danger:focus-visible { color: var(--bs-danger); border-color: var(--bs-danger); }
+
+.theme-btn .theme-icon-dark { display: none; }
+[data-bs-theme="dark"] .theme-btn {
+    .theme-icon-dark { display: inline; }
+    .theme-icon-light { display: none; }
+}
+
+// ---------- Page heading ----------
+body.admin .page-heading {
+    margin-bottom: 1.5rem;
+
+    h3 { font-size: 1.6rem; font-weight: 800; color: var(--admin-ink); }
+}
+
+.page-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bs-primary);
+    margin-bottom: 0.25rem;
+}
+
+// ---------- Dashboard ----------
+.stat-card {
+    color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px rgba(37, 57, 111, 0.35); }
+
+    .stats-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+
+        i { color: #fff; font-size: 1.35rem; line-height: 1; }
+    }
+
+    .stat-value { font-size: 1.5rem; font-weight: 800; line-height: 1.1; color: var(--admin-ink); }
+}
+
+.group-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--admin-sub);
+    margin: 0 0 0.75rem;
+}
+
+.section-card {
+    border: 1px solid transparent;
+    transition: border-color 0.15s ease;
+
+    &:hover { border-color: var(--admin-line); }
+    .card-body { padding: 1.25rem; }
+
+    .section-icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        font-size: 1.15rem;
+        color: var(--bs-primary);
+        background: rgba(var(--bs-primary-rgb), 0.1);
+    }
+
+    .section-title {
+        display: block;
+        font-weight: 700;
+        color: var(--admin-ink);
+
+        &:hover { color: var(--bs-primary); }
+    }
+
+    .btn-sm { min-width: 46px; font-weight: 600; }
+}
+
+// ---------- Section editor ----------
+.section-form .card-header { background: transparent; }
+
+.section-form .form-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--admin-ink);
+    margin-bottom: 0.35rem;
+}
+
+.section-form .form-text { font-size: 0.8rem; }
+
+.section-form :is(.form-control, .form-select) {
+    border-radius: 10px;
+
+    &:focus { box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.15); }
+}
+
+.repeat-item {
+    border: 1px solid var(--admin-line);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    background: var(--admin-surface);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:not(.is-collapsed) {
+        border-color: rgba(var(--bs-primary-rgb), 0.45);
+        box-shadow: 0 8px 24px -16px rgba(37, 57, 111, 0.4);
+    }
+
+    > .repeat-head {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.7rem 0.85rem 0.7rem 1rem;
+        cursor: pointer;
+        user-select: none;
+        border-radius: 12px;
+
+        &:hover { background: var(--admin-muted-bg); }
+        &:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+    }
+
+    .repeat-chevron {
+        color: var(--admin-sub);
+        transition: transform 0.2s ease;
+        transform: rotate(90deg);
+    }
+
+    .repeat-num {
+        flex: none;
+        display: grid;
+        place-items: center;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 0.4rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--bs-primary);
+        background: rgba(var(--bs-primary-rgb), 0.1);
+    }
+
+    .repeat-text { min-width: 0; flex: 1; }
+
+    .repeat-title {
+        font-weight: 700;
+        color: var(--admin-ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .repeat-subtitle {
+        font-size: 0.82rem;
+        color: var(--admin-sub);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:empty { display: none; }
+    }
+
+    .repeat-actions { display: flex; gap: 0.35rem; flex: none; }
+
+    .repeat-body {
+        padding: 1.25rem 1rem 0.25rem;
+        border-top: 1px solid var(--admin-line);
+    }
+
+    &.is-collapsed {
+        .repeat-body { display: none; }
+        .repeat-chevron { transform: none; }
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    border: 2px dashed var(--admin-line);
+    border-radius: 12px;
+    color: var(--admin-sub);
+
+    i { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+}
+
+.image-field img {
+    max-height: 140px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-line);
+}
+
+// Save bar: pinned to the bottom of the content column
+.save-bar {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem 0.75rem 0.75rem 1.25rem;
+    border-radius: var(--admin-radius);
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-line);
+    box-shadow: 0 12px 32px -12px rgba(37, 57, 111, 0.3);
+}
+
+.save-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--admin-sub);
+
+    &.is-dirty { color: var(--admin-ink); font-weight: 600; }
+    &[hidden] { display: none; }
+    .bi-circle-fill { font-size: 0.55rem; }
+}
+
+@media (max-width: 575.98px) {
+    body.admin #main { padding: 1.25rem 1rem; }
+    .repeat-item .repeat-actions .btn-icon { width: 30px; height: 30px; }
+    .save-bar { bottom: 0.5rem; padding-left: 0.85rem; }
+    .save-state span { display: none; }
+}
+
+// ---------- Follow-up polish ----------
+.section-form .card-header + .card-body { padding-top: 1.25rem; }
+
+// Bootstrap's outline-secondary is almost invisible on Mazer's dark cards
+[data-bs-theme="dark"] body.admin .btn-outline-secondary {
+    --bs-btn-color: #c3c7da;
+    --bs-btn-border-color: #44445e;
+    --bs-btn-hover-bg: #2c2c42;
+    --bs-btn-hover-border-color: #5a5a7a;
+    --bs-btn-hover-color: #fff;
+}
+
+@media (max-width: 575.98px) {
+    .repeat-item {
+        .repeat-num { display: none; }
+        > .repeat-head { gap: 0.6rem; padding: 0.6rem 0.6rem 0.6rem 0.75rem; }
+        .repeat-actions { gap: 0.25rem; }
+        .repeat-body { padding: 1rem 0.75rem 0.25rem; }
+    }
+}
+
+// AI settings: dim providers that are switched off
+.provider-card {
+    transition: opacity 0.15s ease;
+    &.is-off { opacity: 0.6; }
+    &.is-off:focus-within, &.is-off:hover { opacity: 1; }
+}
+
+// ---------- Icon alignment ----------
+// Bootstrap Icons sit on the text baseline (vertical-align: -.125em) and Mazer adds
+// extra line-height, so icons drift low/high inside buttons. Centre them with flex.
+body.admin {
+    .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+
+        i, i::before { display: block; line-height: 1; vertical-align: 0; }
+        i { font-size: 1rem; width: 1em; height: 1em; }
+    }
+
+    .btn:not(.btn-icon), .badge, .dropdown-item, .save-state, .sidebar-link, .alert {
+        > i, > .bi { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+        > i::before, > .bi::before { line-height: 1; vertical-align: 0; }
+    }
+
+    .btn:not(.btn-icon) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        > i, > .bi { margin: 0 !important; }
+    }
+    .btn.d-none { display: none !important; }
+    .btn.w-100 { display: flex; }
+}
+
+// Mazer gives .stats-icon i a fixed 2.6rem height, which pushes the glyph off centre
+body.admin .stat-card .stats-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i { display: block; width: auto; height: auto; margin: 0; line-height: 1; font-size: 1.35rem; }
+    i::before { display: block; vertical-align: 0; line-height: 1; }
+}
+
+// ---------- Icon alignment, admin-wide ----------
+// Bootstrap Icons shift glyphs down with vertical-align:-.125em and inherit text
+// line-height, so any icon alone in a box drifts low. Neutralise that everywhere,
+// then centre every icon-only box with flexbox.
+body.admin .bi, body.admin [class^="bi-"], body.admin [class*=" bi-"] { line-height: 1; }
+body.admin .bi::before, body.admin [class^="bi-"]::before, body.admin [class*=" bi-"]::before { vertical-align: 0 !important; line-height: 1; }
+
+body.admin :is(.section-icon, .card-icon, .stats-icon, .tile-icon, .icon-box, .avatar, .btn-icon, .sb-icon, .group-icon, .sec-icon) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    > .bi, > i { display: block; margin: 0; height: auto; width: auto; }
+}
+
+// Theme button holds a moon and a sun; show only the one for the current theme
+body.admin .theme-btn > .theme-icon-dark { display: none; }
+[data-bs-theme="dark"] body.admin .theme-btn > .theme-icon-dark { display: block; }
+[data-bs-theme="dark"] body.admin .theme-btn > .theme-icon-light { display: none; }
+
+// Icon + text headings (PROFILE, HOMEPAGE…): centre the icon on the text
+body.admin .group-label { display: flex; align-items: center; gap: 0.45rem; }
+body.admin .group-label > .bi, body.admin .group-label > i { font-size: 1.05em; }

@@ -1,7 +1,8 @@
 import '@fontsource-variable/geist';
 import '@phosphor-icons/web/light';
 import { initAssistant } from './assistant';
-import { initReveal, initNumbers, initGlobe, initPhotoBanner, initScrollBg, initScrollExpand } from './enhance';
+import { initWork } from './work';
+import { initReveal, initNumbers, initGlobe, initPhotoBanner, initScrollBg, initScrollExpand, initScrollFill, initXpTimeline, initSvcSpotlight } from './enhance';
 
 const THEME_KEY = 'theme';
 const systemDark = matchMedia('(prefers-color-scheme: dark)');
@@ -79,9 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initNumbers();
     initGlobe();
     initPhotoBanner();
+    initScrollFill();
+    initXpTimeline();
+    initSvcSpotlight();
     initScrollBg();
     initScrollExpand();
     initAssistant();
+    initWork();
 });
 
 // Keep the current section when switching language
