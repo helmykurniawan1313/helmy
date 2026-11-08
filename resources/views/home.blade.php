@@ -413,20 +413,52 @@
             <p class="pub-count"><strong>{{ count($p['publications']) }}</strong> {{ $ui['pub_count'] }}</p>
         </div>
 
-        <ol class="pub-list">
+        @php
+            // ALL-CAPS titles read as shouting: show them in title case (stored text is unchanged)
+            $pubTitle = function (string $t) {
+                $letters = preg_replace('/[^\p{L}]/u', '', $t);
+                if ($letters === '' || mb_strtoupper($letters) !== $letters) return $t;
+                $small = ['dan', 'di', 'ke', 'dari', 'pada', 'untuk', 'dengan', 'yang', 'sebagai', 'atau', 'of', 'and', 'the', 'in', 'on', 'for', 'to', 'a', 'an', 'with', 'by'];
+                $acronyms = ['UPT', 'TIK', 'UPN', 'IT', 'AI', 'IOT', 'API', 'CMS', 'ERP', 'UI', 'UX', 'SITASI', 'PHP', 'SQL', 'MVC', 'GIS', 'SPK', 'DSS', 'RFID', 'CCTV', 'LAN', 'WAN', 'VPN', 'DNS', 'ISO', 'BNSP', 'KKNI', 'UMKM', 'SDM', 'TI', 'SI', 'II', 'III', 'IV'];
+                $out = [];
+                foreach (preg_split('/(\s+)/u', $t, -1, PREG_SPLIT_DELIM_CAPTURE) as $i => $word) {
+                    if (trim($word) === '') { $out[] = $word; continue; }
+                    $lower = mb_strtolower($word);
+                    if ($i > 0 && in_array($lower, $small, true)) { $out[] = $lower; continue; }
+                    // Title-case each hyphen part, keep known acronyms in capitals
+                    $parts = array_map(function ($part) use ($acronyms) {
+                        $core = preg_replace('/[^\p{L}]/u', '', $part);
+                        if (in_array(mb_strtoupper($core), $acronyms, true)) return $part;
+                        $low = mb_strtolower($part);
+                        return preg_replace_callback('/\p{L}/u', fn ($m) => mb_strtoupper($m[0]), $low, 1);
+                    }, explode('-', $word));
+                    $out[] = implode('-', $parts);
+                }
+                return implode('', $out);
+            };
+            $ownName = mb_strtolower(trim($p['name']));
+        @endphp
+        <ol class="pub-list pub-rows">
             @foreach ($p['publications'] as $pub)
-                <li class="tile pub-item reveal">
-                    <div class="pub-meta">
-                        @if (! empty($pub['year']))<span class="pub-year">{{ $pub['year'] }}</span>@endif
-                        @if (! empty($pub['type']))<span class="pub-type">{{ $ui['pub_types'][$pub['type']] ?? $pub['type'] }}</span>@endif
+                @php
+                    $authors = trim((string) ($pub['authors'] ?? ''));
+                    $showAuthors = $authors !== '' && mb_strtolower($authors) !== $ownName;
+                    $hasLink = ! empty($pub['url']);
+                @endphp
+                <li @class(['tile pub-row reveal', 'has-link' => $hasLink])>
+                    <div class="pub-row-main">
+                        <div class="pub-meta">
+                            @if (! empty($pub['year']))<span class="pub-year">{{ $pub['year'] }}</span>@endif
+                            @if (! empty($pub['type']))<span class="pub-type">{{ $ui['pub_types'][$pub['type']] ?? $pub['type'] }}</span>@endif
+                            @if (! empty($pub['venue']))<span class="pub-venue-inline"><i class="ph-light ph-book-open-text"></i> {{ $pub['venue'] }}</span>@endif
+                        </div>
+                        <h3 class="pub-title" title="{{ $pub['title'] }}">{{ $pubTitle($pub['title']) }}</h3>
+                        @if ($showAuthors)<p class="pub-authors">{{ $authors }}</p>@endif
+                        @if (! empty($pub['abstract']))<p class="pub-abstract">{{ $pub['abstract'] }}</p>@endif
                     </div>
-                    <h3 class="pub-title">{{ $pub['title'] }}</h3>
-                    @if (! empty($pub['authors']))<p class="pub-authors">{{ $pub['authors'] }}</p>@endif
-                    @if (! empty($pub['venue']))<p class="pub-venue"><i class="ph-light ph-book-open-text"></i> {{ $pub['venue'] }}</p>@endif
-                    @if (! empty($pub['abstract']))<p class="pub-abstract">{{ $pub['abstract'] }}</p>@endif
-                    @if (! empty($pub['url']))
-                        <a href="{{ $pub['url'] }}" class="island-btn island-btn-light pub-link" target="_blank" rel="noopener" aria-label="{{ $ui['pub_read'] }}: {{ $pub['title'] }}">
-                            {{ $ui['pub_read'] }} <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span>
+                    @if ($hasLink)
+                        <a href="{{ $pub['url'] }}" class="pub-go" target="_blank" rel="noopener" aria-label="{{ $ui['pub_read'] }}: {{ $pub['title'] }}" title="{{ $ui['pub_read'] }}">
+                            <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span>
                         </a>
                     @endif
                 </li>
