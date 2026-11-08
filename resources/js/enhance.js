@@ -452,3 +452,111 @@ export function initSvcSpotlight() {
     }
     fromScroll();
 }
+
+/**
+ * Photo banner extras:
+ * - built-in canvas effect: blinking rack status lights + data pulses along
+ *   "cables" (paused off-screen, off for reduced motion)
+ * - Lottie player, loaded only when the admin set a Lottie link
+ */
+export function initPhotoFx() {
+    if (document.querySelector('[data-lottie]')) {
+        import('@lottiefiles/dotlottie-wc').catch(() => {});
+    }
+
+    const canvas = document.querySelector('[data-photo-fx]');
+    if (!canvas || reducedMotion()) return;
+    const ctx = canvas.getContext('2d');
+    const banner = canvas.closest('.photo-banner');
+    const COLORS = ['#3dff8a', '#3dff8a', '#3dff8a', '#ffb547', '#59c7ff', '#ff6b35'];
+    let w = 0, h = 0, dpr = 1, leds = [], lines = [], pulses = [], running = false, last = 0;
+
+    const rand = (a, b) => a + Math.random() * (b - a);
+
+    const layout = () => {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = banner.clientWidth; h = banner.clientHeight;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // Status lights: clustered in vertical "rack" columns across the upper 70%
+        const cols = Math.max(4, Math.round(w / 140));
+        leds = [];
+        for (let c = 0; c < cols; c++) {
+            const x0 = (c + 0.5) * (w / cols) + rand(-30, 30);
+            const count = Math.round(rand(6, 14));
+            for (let i = 0; i < count; i++) {
+                leds.push({
+                    x: x0 + rand(-28, 28), y: rand(h * 0.06, h * 0.72), r: rand(1.2, 2.4),
+                    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                    speed: rand(0.8, 3.2), phase: rand(0, Math.PI * 2), duty: rand(0.35, 0.8),
+                });
+            }
+        }
+        // Cables: a few gently curved horizontal paths
+        lines = Array.from({ length: Math.max(3, Math.round(h / 160)) }, () => {
+            const y = rand(h * 0.12, h * 0.68);
+            return { y, amp: rand(6, 22), freq: rand(0.003, 0.008), off: rand(0, 6) };
+        });
+        pulses = [];
+    };
+
+    const lineY = (l, x) => l.y + Math.sin(x * l.freq + l.off) * l.amp;
+
+    const frame = (t) => {
+        if (!running) return;
+        const dt = Math.min(64, t - (last || t)); last = t;
+        ctx.clearRect(0, 0, w, h);
+
+        // Blinking lights with a soft glow
+        for (const d of leds) {
+            const on = (Math.sin(t / 1000 * d.speed + d.phase) + 1) / 2 > 1 - d.duty;
+            const a = on ? 0.95 : 0.12;
+            ctx.globalAlpha = a * 0.35;
+            ctx.fillStyle = d.color;
+            ctx.beginPath(); ctx.arc(d.x, d.y, d.r * 3.2, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = a;
+            ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // Spawn and move data pulses along the cables
+        if (pulses.length < lines.length * 2 && Math.random() < 0.035) {
+            const l = lines[Math.floor(Math.random() * lines.length)];
+            const dir = Math.random() < 0.5 ? 1 : -1;
+            pulses.push({ l, x: dir > 0 ? -60 : w + 60, dir, v: rand(0.18, 0.42), color: Math.random() < 0.3 ? '#ff6b35' : '#7fb2ff' });
+        }
+        ctx.lineCap = 'round';
+        for (const p of pulses) {
+            p.x += p.dir * p.v * dt;
+            const tail = 70;
+            const grad = ctx.createLinearGradient(p.x - p.dir * tail, 0, p.x, 0);
+            grad.addColorStop(0, 'rgba(255,255,255,0)');
+            grad.addColorStop(1, p.color);
+            ctx.globalAlpha = 0.85;
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let s = 0; s <= tail; s += 6) {
+                const x = p.x - p.dir * (tail - s);
+                const y = lineY(p.l, x);
+                s === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.globalAlpha = 0.9;
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, lineY(p.l, p.x), 2.4, 0, Math.PI * 2); ctx.fill();
+        }
+        pulses = pulses.filter((p) => p.x > -100 && p.x < w + 100);
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(frame);
+    };
+
+    layout();
+    new ResizeObserver(layout).observe(banner);
+    new IntersectionObserver(([e]) => {
+        const was = running;
+        running = e.isIntersecting;
+        if (running && !was) { last = 0; requestAnimationFrame(frame); }
+    }, { rootMargin: '100px' }).observe(banner);
+}

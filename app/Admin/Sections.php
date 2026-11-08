@@ -74,6 +74,9 @@ class Sections
                     ['key' => 'banner.feature_title', 'label' => 'Sentence on the photo', 'type' => 'textarea', 'required' => true],
                     ['key' => 'banner.feature_image', 'label' => 'Photo', 'type' => 'image', 'help' => 'Wide landscape photo, at least 2000 px wide. Darker photos keep the white text readable. Empty = the server-room photo.'],
                     ['key' => 'banner.feature_alt', 'label' => 'Photo description (for screen readers and Google)', 'type' => 'text'],
+                    ['key' => 'banner.feature_fx', 'label' => 'Built-in animation (blinking rack lights and data pulses)', 'type' => 'bool', 'col' => 12],
+                    ['key' => 'banner.feature_media', 'label' => 'Animation link (optional)', 'type' => 'url', 'col' => 8, 'help' => 'LottieFiles (.json or .lottie link), GIF, or video (.mp4 / .webm). On LottieFiles: open an animation → Share / Download → copy the "Lottie JSON" or ".lottie" URL.'],
+                    ['key' => 'banner.feature_media_mode', 'label' => 'Show animation', 'type' => 'select', 'col' => 4, 'options' => ['overlay' => 'Over the photo', 'replace' => 'Instead of the photo']],
                 ],
             ],
             'about' => [

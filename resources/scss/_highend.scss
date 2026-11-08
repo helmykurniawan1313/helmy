@@ -3604,3 +3604,46 @@ html:not(.js) .about-facts .about-fact::before { transform: scaleX(1); }
     background: rgba(255, 255, 255, 0.06) !important;
     box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5) !important;
 }
+
+// ---------- Photo banner animation ----------
+// Layers: photo (-2) < effect / animation (-1) < scrim (::after, -1, later) < text
+.photo-fx {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 1.2s var(--ease-out) 0.3s;
+}
+.photo-banner.in-view .photo-fx { opacity: 1; }
+
+.photo-media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: clamp(1rem, 4vw, 3rem);
+
+    // Over the photo: sits in the upper-right, away from the headline
+    > * { width: min(46vw, 560px); height: auto; max-height: 70%; object-fit: contain; }
+    dotlottie-wc { display: block; aspect-ratio: 1; height: auto; }
+
+    // Instead of the photo: fills the banner
+    &.is-replace { padding: 0; justify-content: center; z-index: -2; background: #0d0f17;
+        > * { width: 100%; height: 100%; max-height: none; object-fit: cover; }
+        dotlottie-wc { aspect-ratio: auto; }
+    }
+}
+.photo-media.is-replace ~ .photo-banner-copy, .photo-banner:has(.photo-media.is-replace) .photo-banner-img { }
+.photo-banner:has(.photo-media.is-replace) .photo-banner-img { visibility: hidden; }
+
+@media (max-width: 767.98px) {
+    .photo-media { align-items: flex-start; justify-content: center; padding-top: 2rem; > * { width: 78vw; max-height: 45%; } }
+}
+@media (prefers-reduced-motion: reduce) {
+    .photo-fx { display: none; }
+}

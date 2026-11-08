@@ -82,6 +82,37 @@
              sizes="100vw" width="2400" height="1350" loading="lazy" decoding="async"
              alt="{{ $b['feature_alt'] ?? '' }}">
     @endif
+
+    @php
+        // Optional animation from the admin: Lottie (.json/.lottie), GIF/image, or video
+        $fMedia = trim((string) ($b['feature_media'] ?? ''));
+        $fPath = strtolower(parse_url($fMedia, PHP_URL_PATH) ?? '');
+        $fKind = match (true) {
+            $fMedia === '' => null,
+            str_ends_with($fPath, '.json') || str_ends_with($fPath, '.lottie') || str_contains($fMedia, 'lottie.host') => 'lottie',
+            (bool) preg_match('/\.(mp4|webm|mov)$/', $fPath) => 'video',
+            default => 'image',
+        };
+        $fMode = ($b['feature_media_mode'] ?? 'overlay') === 'replace' ? 'replace' : 'overlay';
+        $fFx = ($b['feature_fx'] ?? true) !== false && $fMode !== 'replace';
+    @endphp
+
+    @if ($fFx)
+        <canvas class="photo-fx" data-photo-fx aria-hidden="true"></canvas>
+    @endif
+
+    @if ($fKind)
+        <div @class(['photo-media', 'is-replace' => $fMode === 'replace']) aria-hidden="true">
+            @if ($fKind === 'lottie')
+                <dotlottie-wc data-lottie src="{{ $fMedia }}" autoplay loop></dotlottie-wc>
+            @elseif ($fKind === 'video')
+                <video src="{{ $fMedia }}" autoplay muted loop playsinline preload="metadata"></video>
+            @else
+                <img src="{{ $fMedia }}" alt="" loading="lazy" decoding="async">
+            @endif
+        </div>
+    @endif
+
     <div class="photo-banner-copy">
         <h2 id="feature-title" class="display-lg">{{ $b['feature_title'] }}</h2>
     </div>
