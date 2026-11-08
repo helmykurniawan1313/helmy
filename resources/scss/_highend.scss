@@ -3647,3 +3647,23 @@ html:not(.js) .about-facts .about-fact::before { transform: scaleX(1); }
 @media (prefers-reduced-motion: reduce) {
     .photo-fx { display: none; }
 }
+
+// Experience logo on desktop: square and larger (logo fits inside, never cropped)
+@media (min-width: 992px) {
+    .xp-company > .xp-head .xp-mark,
+    .xp-company > .xp-head .xp-mark.has-logo {
+        width: 88px !important;
+        min-width: 88px;
+        max-width: 88px !important;
+        height: 88px !important;
+        aspect-ratio: 1;
+        border-radius: 22px;
+        font-size: 1.35rem;
+    }
+    .xp-company > .xp-head .xp-mark.has-logo {
+        padding: 12px !important;
+
+        img { width: 100%; height: 100%; max-width: none; object-fit: contain; }
+    }
+    .xp-company > .xp-head > .xp-head-in > div { top: auto; }
+}
