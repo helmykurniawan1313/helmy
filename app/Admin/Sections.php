@@ -64,6 +64,18 @@ class Sections
                     ['key' => 'location', 'label' => 'Location', 'type' => 'text'],
                 ],
             ],
+            'feature' => [
+                'group' => 'Homepage',
+                'title' => 'Photo banner',
+                'icon' => 'image',
+                'translatable' => true,
+                'description' => 'The full-width photo with a big sentence, right after the hero.',
+                'fields' => [
+                    ['key' => 'banner.feature_title', 'label' => 'Sentence on the photo', 'type' => 'textarea', 'required' => true],
+                    ['key' => 'banner.feature_image', 'label' => 'Photo', 'type' => 'image', 'help' => 'Wide landscape photo, at least 2000 px wide. Darker photos keep the white text readable. Empty = the server-room photo.'],
+                    ['key' => 'banner.feature_alt', 'label' => 'Photo description (for screen readers and Google)', 'type' => 'text'],
+                ],
+            ],
             'about' => [
                 'group' => 'Homepage',
                 'title' => 'About',

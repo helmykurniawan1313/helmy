@@ -71,11 +71,17 @@
 
 {{-- ========== BIG IMAGE ========== --}}
 <section class="photo-banner" aria-labelledby="feature-title">
-    <img class="photo-banner-img"
-         src="{{ asset('images/server-room-1200.jpg') }}"
-         srcset="{{ asset('images/server-room-1200.jpg') }} 1200w, {{ asset('images/server-room-2400.jpg') }} 2400w"
-         sizes="100vw" width="2400" height="1350" loading="lazy" decoding="async"
-         alt="{{ $b['feature_alt'] }}">
+    @if (! empty($b['feature_image']))
+        <img class="photo-banner-img" src="{{ asset($b['feature_image']) }}"
+             sizes="100vw" width="2400" height="1350" loading="lazy" decoding="async"
+             alt="{{ $b['feature_alt'] ?? '' }}">
+    @else
+        <img class="photo-banner-img"
+             src="{{ asset('images/server-room-1200.jpg') }}"
+             srcset="{{ asset('images/server-room-1200.jpg') }} 1200w, {{ asset('images/server-room-2400.jpg') }} 2400w"
+             sizes="100vw" width="2400" height="1350" loading="lazy" decoding="async"
+             alt="{{ $b['feature_alt'] ?? '' }}">
+    @endif
     <div class="photo-banner-copy">
         <h2 id="feature-title" class="display-lg">{{ $b['feature_title'] }}</h2>
     </div>
