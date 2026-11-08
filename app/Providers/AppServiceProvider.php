@@ -22,5 +22,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // AI keys/models saved in the admin override .env
         Settings::apply();
+
+        // Production site is https: never generate http:// links (mixed content)
+        if (str_starts_with((string) config('app.url'), 'https://')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }
