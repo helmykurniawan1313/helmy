@@ -29,7 +29,7 @@
                 @foreach ($socials as $s)
                     <a href="{{ $s['url'] }}" class="social-chip is-{{ $s['kind'] }}" target="_blank" rel="noopener me">
                         <i class="ph-light {{ $s['icon'] }}"></i>
-                        <span><strong>{{ $s['label'] }}</strong>@if ($s['sub'])<small>{{ $s['sub'] }}</small>@endif</span>
+                        <span><strong>{{ $s['label'] }}</strong></span>
                     </a>
                 @endforeach
             </div>

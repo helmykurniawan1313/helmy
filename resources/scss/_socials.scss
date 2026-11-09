@@ -167,3 +167,92 @@
     .social-chip, .xp-social { transition: none; }
     .social-chip:hover, .xp-social:hover { transform: none; }
 }
+
+// In the left About column: no divider, sits under the lead sentence
+.about-intro .about-socials { margin-top: 2rem; padding-top: 0; border-top: 0; }
+
+// ---------- Business account link: layout per screen size ----------
+// Desktop: compact pill aligned with the text above
+@media (min-width: 992px) {
+    .xp-social { margin-top: 1rem; padding: 0.35rem 0.8rem 0.35rem 0.35rem; }
+    .xp-social > i { width: 1.7rem; height: 1.7rem; font-size: 0.95rem; }
+    .xp-social strong { font-size: 0.82rem; }
+}
+
+// Mobile / tablet: logo + name + dates in a row (top-aligned),
+// the account pill on its own full-width line below
+@media (max-width: 991.98px) {
+    .xp-company > .xp-head > .xp-head-in {
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr);
+        column-gap: 1rem;
+        align-items: start;
+    }
+    .xp-company > .xp-head > .xp-head-in > div { display: contents; }
+    .xp-company > .xp-head > .xp-head-in .xp-mark { grid-column: 1; grid-row: 1 / span 3; align-self: start; }
+    .xp-company > .xp-head > .xp-head-in :is(.xp-org, .xp-legal, .xp-span) { grid-column: 2; }
+    .xp-company > .xp-head > .xp-head-in .xp-org { margin-top: 0.1rem; }
+    .xp-social {
+        grid-column: 1 / -1;
+        justify-self: stretch;
+        margin-top: 1rem;
+        padding: 0.45rem 0.9rem 0.45rem 0.45rem;
+    }
+}
+@media (max-width: 991.98px) {
+    .xp-company > .xp-head > .xp-head-in { row-gap: 0 !important; gap: 0 1rem !important; grid-auto-rows: auto; }
+    .xp-company > .xp-head > .xp-head-in .xp-mark { grid-row: 1 / span 2; }
+    .xp-company > .xp-head > .xp-head-in .xp-span { margin-top: 0.2rem; }
+    .xp-company > .xp-head > .xp-head-in .xp-social { margin-top: 0.9rem; }
+}
+
+// ---------- Business account: one plain text line, styled like the dates ----------
+.xp-social-line {
+    margin: 0.35rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--bs-secondary-color);
+}
+.xp-social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+    text-underline-offset: 3px;
+
+    i { font-size: 1em; line-height: 1; }
+    .xp-social-arrow { font-size: 0.85em; opacity: 0.7; transition: transform 0.2s ease; }
+    &:hover { text-decoration: underline; }
+    &:hover .xp-social-arrow { transform: translate(1px, -1px); opacity: 1; }
+    &:focus-visible { outline: 2px solid var(--sunset); outline-offset: 2px; border-radius: 4px; }
+}
+.xp-social-note { opacity: 0.85; }
+
+// Match each panel: warm panels use the warm text colours, the current (blue) panel uses white
+.xp-company > .xp-head .xp-social-line { color: #8a4a2c; }
+.xp-company > .xp-head .xp-social-link { color: #3b1d0f; }
+[data-bs-theme="dark"] .xp-company > .xp-head .xp-social-line { color: #e0a98e; }
+[data-bs-theme="dark"] .xp-company > .xp-head .xp-social-link { color: #ffe8dc; }
+.xp-company.is-current > .xp-head .xp-social-line, [data-bs-theme="dark"] .xp-company.is-current > .xp-head .xp-social-line { color: rgba(255, 255, 255, 0.82); }
+.xp-company.is-current > .xp-head .xp-social-link, [data-bs-theme="dark"] .xp-company.is-current > .xp-head .xp-social-link { color: #fff; }
+
+// Mobile: stays in the text column next to the logo
+@media (max-width: 991.98px) {
+    .xp-company > .xp-head > .xp-head-in .xp-social-line { grid-column: 2; margin-top: 0.25rem; }
+}
+.xp-social-note { display: block; margin-top: 0.1rem; font-size: 0.78rem; opacity: 0.8; }
+.xp-social-link { max-width: 100%; }
+
+// About chips: same height and width
+.about-socials-row .social-chip { min-width: 9.5rem; padding-right: 1.15rem; }
+
+// Handle line: same rhythm as the dates, arrow aligned
+.xp-company > .xp-head .xp-social-line { margin-top: 0.3rem; font-size: 0.85rem; }
+.xp-company > .xp-head .xp-social-link {
+    gap: 0.25rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    .xp-social-arrow { font-size: 0.9em; opacity: 0.85; position: relative; top: 0.05em; }
+}

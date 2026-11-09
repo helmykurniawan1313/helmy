@@ -132,13 +132,13 @@
                 @endphp
                 <h2 id="about-title" class="display-lg mb-4">{{ implode(' ', $aboutWords) }} <span class="about-name">{{ $aboutLast }}</span></h2>
                 <p class="about-lead">{{ $about['lead'] }}</p>
+                @include('partials.socials', ['variant' => 'about'])
             </div>
             <div class="about-body reveal">
                 @foreach ($about['body'] as $para)
                     <p>{{ $para }}</p>
                 @endforeach
                 <p><em>{{ $ui['principle_quote'] }}</em></p>
-                @include('partials.socials', ['variant' => 'about'])
             </div>
         </div>
 
@@ -241,10 +241,9 @@
                                       $sHost = (string) parse_url($co['social'], PHP_URL_HOST);
                                       $sIcon = str_contains($sHost, 'instagram') ? 'ph-instagram-logo' : (str_contains($sHost, 'tiktok') ? 'ph-tiktok-logo' : (str_contains($sHost, 'facebook') ? 'ph-facebook-logo' : (str_contains($sHost, 'linkedin') ? 'ph-linkedin-logo' : 'ph-link')));
                                   @endphp
-                                  <a href="{{ $co['social'] }}" class="xp-social" target="_blank" rel="noopener">
-                                      <i class="ph-light {{ $sIcon }}"></i>
-                                      <span><strong>{{ $sPath !== '' ? '@'.basename($sPath) : $sHost }}</strong><small>{{ $ui['social_managed'] }}</small></span>
-                                  </a>
+                                  <p class="xp-social-line">
+                                      <a href="{{ $co['social'] }}" class="xp-social-link" target="_blank" rel="noopener">{{ $sPath !== '' ? '@'.basename($sPath) : $sHost }}<i class="ph-light ph-arrow-up-right xp-social-arrow"></i></a>
+                                  </p>
                               @endif
                           </div>
                       </div>
