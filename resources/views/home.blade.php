@@ -138,6 +138,7 @@
                     <p>{{ $para }}</p>
                 @endforeach
                 <p><em>{{ $ui['principle_quote'] }}</em></p>
+                @include('partials.socials', ['variant' => 'about'])
             </div>
         </div>
 
@@ -207,6 +208,7 @@
             'mark' => strtoupper(mb_substr($words[0] ?? $name, 0, 1) . mb_substr($words[1] ?? '', 0, 1)),
             'span' => explode(' - ', $roles->last()['period'])[0] . ' – ' . explode(' - ', $roles->first()['period'])[1],
             'logo' => $roles->pluck('logo')->filter()->first(),
+            'social' => $roles->pluck('social')->filter()->first(),
             'current' => $roles->contains('current', true),
             'roles' => $roles,
         ];
@@ -233,6 +235,17 @@
                               <h3 class="xp-org">{{ $co['name'] }}</h3>
                               @if ($co['legal'])<p class="xp-legal">{{ $co['legal'] }}</p>@endif
                               <p class="xp-span">{{ $co['span'] }}</p>
+                              @if ($co['social'])
+                                  @php
+                                      $sPath = trim((string) parse_url($co['social'], PHP_URL_PATH), '/');
+                                      $sHost = (string) parse_url($co['social'], PHP_URL_HOST);
+                                      $sIcon = str_contains($sHost, 'instagram') ? 'ph-instagram-logo' : (str_contains($sHost, 'tiktok') ? 'ph-tiktok-logo' : (str_contains($sHost, 'facebook') ? 'ph-facebook-logo' : (str_contains($sHost, 'linkedin') ? 'ph-linkedin-logo' : 'ph-link')));
+                                  @endphp
+                                  <a href="{{ $co['social'] }}" class="xp-social" target="_blank" rel="noopener">
+                                      <i class="ph-light {{ $sIcon }}"></i>
+                                      <span><strong>{{ $sPath !== '' ? '@'.basename($sPath) : $sHost }}</strong><small>{{ $ui['social_managed'] }}</small></span>
+                                  </a>
+                              @endif
                           </div>
                       </div>
                     </header>
@@ -587,7 +600,6 @@
                 <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span>
             </a>
         </div>
-        <div class="reveal">@include('partials.socials', ['variant' => 'pills'])</div>
     </div>
 </section>
 @endsection

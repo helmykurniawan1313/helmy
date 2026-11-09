@@ -67,3 +67,103 @@
     .social-pill { transition: none; }
     .social-pill:hover { transform: none; }
 }
+
+// About: "Find me on" chips (page background, theme colours)
+.about-socials {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+.about-socials-label {
+    display: block;
+    margin-bottom: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.about-socials-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+.social-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 1rem 0.45rem 0.45rem;
+    border-radius: 999px;
+    background: var(--core);
+    box-shadow: 0 0 0 1px var(--shell-ring), 0 6px 16px -10px rgba(30, 40, 90, 0.25);
+    color: var(--bs-heading-color, var(--bs-body-color));
+    text-decoration: none;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+    > i {
+        display: grid;
+        place-items: center;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 1.15rem;
+        line-height: 1;
+    }
+    &.is-linkedin > i { background: #0a66c2; }
+    &.is-instagram > i { background: radial-gradient(circle at 30% 110%, #fdc468 0%, #df4996 45%, #7c3aed 100%); }
+
+    > span { display: flex; flex-direction: column; line-height: 1.15; }
+    strong { font-size: 0.92rem; font-weight: 600; }
+    small { font-size: 0.75rem; color: var(--bs-secondary-color); }
+
+    &:hover, &:focus-visible {
+        color: var(--bs-heading-color, var(--bs-body-color));
+        transform: translateY(-2px);
+        box-shadow: 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35), 0 10px 22px -12px rgba(30, 40, 90, 0.35);
+    }
+    &:focus-visible { outline: 2px solid var(--sunset); outline-offset: 3px; }
+}
+
+// Experience: the business account you manage, inside the company panel
+.xp-social {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.9rem;
+    padding: 0.4rem 0.85rem 0.4rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: inset 0 0 0 1px rgba(255, 107, 53, 0.25);
+    color: #3b1d0f;
+    text-decoration: none;
+    max-width: 100%;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+    > i {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 1.9rem;
+        height: 1.9rem;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 110%, #fdc468 0%, #df4996 45%, #7c3aed 100%);
+        color: #fff;
+        font-size: 1.05rem;
+        line-height: 1;
+    }
+    > span { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+    strong { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    small { font-size: 0.7rem; opacity: 0.75; }
+
+    &:hover, &:focus-visible { color: #3b1d0f; transform: translateY(-1px); box-shadow: inset 0 0 0 1px rgba(255, 107, 53, 0.5); }
+}
+[data-bs-theme="dark"] .xp-social { background: rgba(255, 255, 255, 0.08); color: #ffe8dc; box-shadow: inset 0 0 0 1px rgba(255, 138, 91, 0.3); &:hover { color: #ffe8dc; } }
+.xp-company.is-current .xp-social, [data-bs-theme="dark"] .xp-company.is-current .xp-social {
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+    color: #fff;
+    &:hover { color: #fff; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .social-chip, .xp-social { transition: none; }
+    .social-chip:hover, .xp-social:hover { transform: none; }
+}

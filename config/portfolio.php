@@ -11,8 +11,6 @@ return [
     'website' => 'https://helmy.my.id',
     'linkedin' => null,
     'instagram' => null,
-    'instagram_business' => null,
-    'instagram_business_name' => null,
     'photo' => 'images/helmy.jpeg',
     'career_start' => 2017,
     'gpa' => '3.72',

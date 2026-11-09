@@ -1,6 +1,8 @@
 {{--
-    Social links from Admin > Personal info. Only filled ones are shown.
-    Usage: @include('partials.socials', ['variant' => 'pills' | 'list'])
+    Personal social links from Admin > Personal info (LinkedIn, Instagram).
+    Only filled ones are shown. The business account you manage lives on its
+    Experience card instead (Admin > Career > Experience > "Business account I manage").
+    Usage: @include('partials.socials', ['variant' => 'about' | 'list'])
 --}}
 @php
     $handle = function (?string $url) {
@@ -16,22 +18,21 @@
         ! empty($p['instagram']) ? [
             'url' => $p['instagram'], 'icon' => 'ph-instagram-logo', 'label' => $ui['social_instagram'] ?? 'Instagram', 'sub' => $handle($p['instagram']), 'kind' => 'instagram',
         ] : null,
-        ! empty($p['instagram_business']) ? [
-            'url' => $p['instagram_business'], 'icon' => 'ph-storefront', 'label' => ($p['instagram_business_name'] ?? '') ?: ($handle($p['instagram_business']) ?? 'Instagram'),
-            'sub' => $ui['social_business'] ?? 'Business', 'kind' => 'business',
-        ] : null,
     ]));
 @endphp
 
 @if ($socials)
-    @if (($variant ?? 'list') === 'pills')
-        <div class="social-pills" aria-label="{{ $ui['social_title'] ?? 'Social media' }}">
-            @foreach ($socials as $s)
-                <a href="{{ $s['url'] }}" class="social-pill is-{{ $s['kind'] }}" target="_blank" rel="noopener me">
-                    <i class="ph-light {{ $s['icon'] }}"></i>
-                    <span class="social-pill-text"><strong>{{ $s['label'] }}</strong>@if ($s['sub'])<small>{{ $s['sub'] }}</small>@endif</span>
-                </a>
-            @endforeach
+    @if (($variant ?? 'list') === 'about')
+        <div class="about-socials">
+            <span class="about-socials-label">{{ $ui['social_find'] ?? 'Find me on' }}</span>
+            <div class="about-socials-row">
+                @foreach ($socials as $s)
+                    <a href="{{ $s['url'] }}" class="social-chip is-{{ $s['kind'] }}" target="_blank" rel="noopener me">
+                        <i class="ph-light {{ $s['icon'] }}"></i>
+                        <span><strong>{{ $s['label'] }}</strong>@if ($s['sub'])<small>{{ $s['sub'] }}</small>@endif</span>
+                    </a>
+                @endforeach
+            </div>
         </div>
     @else
         @foreach ($socials as $s)

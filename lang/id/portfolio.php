@@ -37,6 +37,8 @@ return [
         'social_linkedin' => 'LinkedIn',
         'social_instagram' => 'Instagram',
         'social_business' => 'Bisnis yang saya kelola',
+        'social_find' => 'Temukan saya di',
+        'social_managed' => 'Akun yang saya kelola',
         'pub_read' => 'Baca',
         'pub_count' => 'karya terbit',
         'cert_label' => 'Sertifikasi',

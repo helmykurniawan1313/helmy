@@ -37,6 +37,8 @@ return [
         'social_linkedin' => 'LinkedIn',
         'social_instagram' => 'Instagram',
         'social_business' => 'Business I manage',
+        'social_find' => 'Find me on',
+        'social_managed' => 'Account I manage',
         'pub_read' => 'Read',
         'pub_count' => 'published works',
         'cert_label' => 'Certification',
