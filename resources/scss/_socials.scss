@@ -1,0 +1,69 @@
+// ---------- Social links ----------
+// Contact section (blue): frosted pills under the WhatsApp / Email buttons
+.social-pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+}
+
+.social-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem 0.5rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+    color: #fff;
+    text-decoration: none;
+    text-align: left;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+
+    > i {
+        display: grid;
+        place-items: center;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.16);
+        font-size: 1.15rem;
+        line-height: 1;
+    }
+
+    .social-pill-text { display: flex; flex-direction: column; line-height: 1.15; }
+    strong { font-size: 0.92rem; font-weight: 600; }
+    small { font-size: 0.74rem; color: rgba(255, 255, 255, 0.72); }
+
+    // Brand-tinted icon chips
+    &.is-linkedin > i { background: #0a66c2; }
+    &.is-instagram > i { background: radial-gradient(circle at 30% 110%, #fdc468 0%, #df4996 45%, #7c3aed 100%); }
+    &.is-business > i { background: var(--sunset, #ff6b35); }
+    &.is-business small { color: #ffd2bf; }
+
+    &:hover, &:focus-visible {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.18);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+        transform: translateY(-2px);
+    }
+    &:focus-visible { outline: 2px solid #ffc2a6; outline-offset: 3px; }
+}
+
+// Footer list: secondary line for the handle / "Business I manage"
+.footer-sub {
+    margin-left: 0.4rem;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+@media (max-width: 575.98px) {
+    .social-pills { flex-direction: column; align-items: stretch; }
+    .social-pill { justify-content: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .social-pill { transition: none; }
+    .social-pill:hover { transform: none; }
+}

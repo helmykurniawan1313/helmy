@@ -587,6 +587,7 @@
                 <span class="island-btn-icon"><i class="ph-light ph-arrow-up-right"></i></span>
             </a>
         </div>
+        <div class="reveal">@include('partials.socials', ['variant' => 'pills'])</div>
     </div>
 </section>
 @endsection

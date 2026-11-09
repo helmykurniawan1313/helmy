@@ -36,6 +36,7 @@
                 <ul>
                     <li><a href="mailto:{{ $p['email'] }}"><i class="ph-light ph-envelope-simple"></i> {{ $p['email'] }}</a></li>
                     <li><a href="https://wa.me/{{ $p['whatsapp'] }}" target="_blank" rel="noopener"><i class="ph-light ph-whatsapp-logo"></i> {{ $p['phone'] }}</a></li>
+                    @include('partials.socials', ['variant' => 'list'])
                     <li><span><i class="ph-light ph-map-pin"></i> {{ $p['location'] }}</span></li>
                 </ul>
             </div>
