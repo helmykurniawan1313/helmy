@@ -117,3 +117,15 @@
 .tile.pub-row { flex-direction: row !important; justify-content: space-between; }
 .tile.pub-row > .pub-go { align-self: center; }
 @media (max-width: 575.98px) { .tile.pub-row > .pub-go { align-self: flex-start; } }
+
+// Only the arrow is a link (no full-card click area)
+.cred-go::after, .pub-go::after { content: none !important; display: none !important; }
+.tile.cred-card.has-link, .tile.pub-row.has-link { cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+    .tile.cred-card.has-link:hover, .tile.pub-row.has-link:hover { transform: none; }
+    .tile.cred-card.has-link:hover .cred-go .island-btn-icon, .tile.pub-row.has-link:hover .pub-go .island-btn-icon { transform: none; }
+    .tile.pub-row.has-link:hover .pub-title { color: var(--bs-heading-color, var(--bs-body-color)); }
+    .cred-go:hover .island-btn-icon, .pub-go:hover .island-btn-icon { transform: translate(2px, -2px) scale(1.08) !important; }
+    .cred-go:hover .island-btn-icon, .pub-go:hover .island-btn-icon { filter: brightness(1.08); }
+}
+.cred-go, .pub-go { cursor: pointer; }
